@@ -2,7 +2,7 @@ Package: glab.library
 Type: Package
 Title: Data Analysis Functions
 Version: 0.1.0
-Author: KSheu
+Author: graeberlab-ucla
 Maintainer: Katherine Sheu <ksheu@mednet.ucla.edu>
 Description: Library of useful functions and R scripts for data mining.
     Use four spaces when indenting paragraphs within the Description.
