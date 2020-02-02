@@ -4,9 +4,20 @@
 \alias{plot_pca}
 \title{Plot PCA}
 \usage{
-plot_pca(file, info.name, info.type, title = "", labels = TRUE,
-  PCx = "PC1", PCy = "PC2", ellipse = F, conf = 0.95,
-  density = F, fliph = F, flipv = F)
+plot_pca(
+  file,
+  info.name,
+  info.type,
+  title = "",
+  labels = TRUE,
+  PCx = "PC1",
+  PCy = "PC2",
+  ellipse = F,
+  conf = 0.95,
+  density = F,
+  fliph = F,
+  flipv = F
+)
 }
 \arguments{
 \item{file}{File containing scores matrix}

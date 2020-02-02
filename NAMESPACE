@@ -3,6 +3,7 @@
 export(PCA_from_file)
 export(PLSR_from_file)
 export(PLSR_from_file_and_predict_second_dataset)
+export(calculate_signature_scores)
 export(intersect_all)
 export(intersect_doPCA_from_file_and_project_second_dataset)
 export(plot_pca)

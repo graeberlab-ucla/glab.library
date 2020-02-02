@@ -1,0 +1,71 @@
+---
+title: "PCA Tutorial"
+author: "Katherine Sheu"
+date: "February 2, 2020"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Put the title of your vignette here}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+Here are some examples for using the package functions. 
+
+PCA and PLSR scripts, with example input and output.
+
+Recommend running these scripts in RStudio, or a similar R GUI (graphical user interface)
+
+
+Th PCA scripts are basically a wrapper for the R packace 'prcomp'.
+	https://stat.ethz.ch/R-manual/R-devel/library/stats/html/prcomp.html
+PLSR scripts are a wrapper for R package 'pls'mixOmics'.
+  https://cran.r-project.org/web/packages/mixOmics/index.html
+  http://www.bioconductor.org/packages/release/bioc/html/mixOmics.html
+  
+#Open the four *.R files in RStudio. 
+
+#'source' the four files to load the algorithms into memory. In more advanced applications they can be installed as packages. 
+
+For help information on each parameter either (i) see the header portion of each .R file, or (ii) when installed as packages in R/RStudio, use help("PCA_from_file") or help('plot_pca') in R or RStudio. 
+
+
+#set working directory.  Replace "/path/to/working/dir" with the actual working directory where the files are located
+setwd("/path/to/working/dir")
+
+```{r cars}
+
+#execute the following commands from the console of the Rstudio GUI:
+
+
+#read annotation file----
+human.info = read.delim("human.info.rsem.expression.txt")
+	
+# for PCA run----
+PCA_from_file("Beltran_2016_rsem_genes_upper_norm_counts_coding_log2.txt", center = T, scale = F)
+plot_pca("Beltran_2016_rsem_genes_upper_norm_counts_coding_log2_prcomp_scores.txt",
+    human.info$sample, human.info$type, labels = F, ellipse = T, PCx = "PC1", PCy = "PC2")
+
+# for PLSR run----
+PLSR_from_file("Beltran_2016_rsem_genes_upper_norm_counts_coding_log2.txt", human.info$sample, human.info$type,
+    (ifelse(human.info$type=="NEPC", 1, 0)), comps = 5, scale = F)
+plot_pls("Beltran_2016_rsem_genes_upper_norm_counts_coding_log2_PLSR_Xscores.txt",
+    human.info$sample, human.info$type, title = "PLSR", labels =F, PCx = "comp.1", PCy = "comp.2", ellipse = T, conf = 0.90)
+
+
+# for varimax run ----
+varimax_from_file("Beltran_2016_rsem_genes_upper_norm_counts_coding_log2_prcomp_scores.txt",
+                  "Beltran_2016_rsem_genes_upper_norm_counts_coding_log2_prcomp_loadings.txt",
+                  comp = 2, normalize = F)
+plot_pca("Beltran_2016_rsem_genes_upper_norm_counts_coding_log2_prcomp_scores_VARIMAX.txt",
+    human.info$sample, human.info$type, labels = F, ellipse = T)
+
+
+```
+
