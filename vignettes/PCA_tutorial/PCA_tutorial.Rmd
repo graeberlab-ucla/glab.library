@@ -20,8 +20,19 @@ Here are some examples for using the package functions.
 
 PCA and PLSR scripts, with example input and output.
 
-Recommend running these scripts in RStudio, or a similar R GUI (graphical user interface)
+scripts:
+friendly-lamp/R/
+	PCA_from_file.R
+	varimax_from_file.R
+	plot_pca.R
+	PLSR_from_file.R
+	plot_pls.R
+input files:
+friendly-lamp/vignettes/PCA_tutorial/
+	Beltran_2016_rsem_genes_upper_norm_counts_coding_log2.txt
+	human.info.rsem.expression.txt
 
+Recommend running these scripts in RStudio, or a similar R GUI (graphical user interface)
 
 Th PCA scripts are basically a wrapper for the R packace 'prcomp'.
 	https://stat.ethz.ch/R-manual/R-devel/library/stats/html/prcomp.html
@@ -29,9 +40,9 @@ PLSR scripts are a wrapper for R package 'pls'mixOmics'.
   https://cran.r-project.org/web/packages/mixOmics/index.html
   http://www.bioconductor.org/packages/release/bioc/html/mixOmics.html
   
-#Open the four *.R files in RStudio. 
+#Open the five *.R files in RStudio. 
 
-#'source' the four files to load the algorithms into memory. In more advanced applications they can be installed as packages. 
+#'source' the five files to load the algorithms into memory. In more advanced applications they can be installed as packages. 
 
 For help information on each parameter either (i) see the header portion of each .R file, or (ii) when installed as packages in R/RStudio, use help("PCA_from_file") or help('plot_pca') in R or RStudio. 
 
