@@ -21,14 +21,14 @@ Here are some examples for using the package functions.
 PCA and PLSR scripts, with example input and output.
 
 scripts:
-friendly-lamp/R/
+glab.library/R/
 	PCA_from_file.R
 	varimax_from_file.R
 	plot_pca.R
 	PLSR_from_file.R
 	plot_pls.R
 input files:
-friendly-lamp/vignettes/PCA_tutorial/
+glab.library/vignettes/PCA_tutorial/
 	Beltran_2016_rsem_genes_upper_norm_counts_coding_log2.txt
 	human.info.rsem.expression.txt
 
