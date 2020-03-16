@@ -15,8 +15,9 @@
 #'
 
 
-PCA_from_file=function(file,center=TRUE,scale=FALSE, fread = FALSE, tol = sqrt(.Machine$double.eps)) {
+PCA_from_file=function(file,center=TRUE,scale=FALSE, fread = FALSE) {
   requireNamespace(data.table)
+  require(data.table)
   if(fread==T){
     data = fread(file)
     data= data[rowSums((data[,-1, with=F]==0))<ncol(data[-1]),]

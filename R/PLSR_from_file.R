@@ -13,15 +13,21 @@
 #' @param labels label the plot, default = F
 #' @param comp.x,comp.y comps to display
 #' @param title title of the plot
-#' @param fread defaylt = F
+#' @param fread default = F
 #'
 #' @export
 #'
+
+
+setwd("C:/Users/msheu/Documents/R/glab.library/vignettes/PCA_tutorial")
+file = "Beltran_2016_rsem_genes_upper_norm_counts_coding_log2.txt"
+center=TRUE;scale=FALSE;fread = FALSE
 
 PLSR_from_file = function(file, sample.names, sample.type, y.response, title = "PLSR",comps = 5, scale = F, comp.x = "comp.1", comp.y = "comp.2", labels = F, fread = F){
 
   requireNamespace(mixOmics)
   requireNamespace(ggplot2)
+  require(mixOmics);require(ggplot2)
 
   if (fread == T) {
     data = fread(file)
@@ -34,13 +40,6 @@ PLSR_from_file = function(file, sample.names, sample.type, y.response, title = "
 
     pls.fit = pls(X = t.data, Y = y.response, scale = scale, ncomp = comps)
     print(pls.fit$explained_variance$X)
-
-    # #do CV
-    # set.seed(1) # for reproducibility here, only when the `cpus' argument is not used
-    # perf.pls = perf(pls.fit, validation = "loo", #folds = 5,
-    #                    progressBar = TRUE, auc = TRUE, nrepeat = 1)
-    # print(perf.pls$error.rate)  # error rates
-    # plot(perf.pls, col = color.mixo(1:3), sd = TRUE, legend.position = "horizontal")
 
     #write out
     x.variates = data.frame(pls.fit$variates$X)
@@ -62,13 +61,8 @@ PLSR_from_file = function(file, sample.names, sample.type, y.response, title = "
   pls.fit = pls(X = t.data, Y = y.response, scale = scale, ncomp = comps)
   print(pls.fit$explained_variance$X)
 
-  # #do CV
-  # set.seed(1) # for reproducibility here, only when the `cpus' argument is not used
-  # perf.pls = perf(pls.fit, validation = "Mfold", folds = 5,
-  #                 progressBar = TRUE, auc = TRUE, nrepeat = 10)
-  # print(perf.pls$error.rate)  # error rates
-  # plot(perf.pls, col = color.mixo(1:3), sd = TRUE, legend.position = "horizontal")
-  #
+
+
   #write out
   x.variates = data.frame(pls.fit$variates$X)
   x.loadings = data.frame(pls.fit$loadings$X)

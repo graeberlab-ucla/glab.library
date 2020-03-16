@@ -4,13 +4,7 @@
 \alias{PCA_from_file}
 \title{PCA from file}
 \usage{
-PCA_from_file(
-  file,
-  center = TRUE,
-  scale = FALSE,
-  fread = FALSE,
-  tol = sqrt(.Machine$double.eps)
-)
+PCA_from_file(file, center = TRUE, scale = FALSE, fread = FALSE)
 }
 \arguments{
 \item{file}{Filepath/filename of data matrix}

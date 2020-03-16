@@ -17,12 +17,12 @@
 #'
 #' @export
 #'
-plot_pls = function(file, info.name, info.type, title = "", labels = TRUE, PCx="comp.1", PCy="comp.2", ellipse = F, conf = 0.95,
+plot_pls = function(file, info.name, info.type, title = "", labels = TRUE, PCx="comp1", PCy="comp2", ellipse = F, conf = 0.95,
                     fliph = F, flipv = F){
   #Input: PLSR scores file to be ploted
   ##process PLS output and adds groupings
-  requireNamespace(ggplot2)
-  requireNamespace(vegan)
+  require(ggplot2)
+  require(vegan)
 
   table <- read.table(file, header = TRUE)
   table$type = info.type[match(table$Score, info.name)]
@@ -36,7 +36,7 @@ plot_pls = function(file, info.name, info.type, title = "", labels = TRUE, PCx="
 
   exp_var = read.delim(paste0(gsub("scores.txt","",file),"pve.txt"), row.names = 1)
   exp_var$pve =  unlist(round(exp_var[,1] * 100, digits = 2))
-  rownames(exp_var) = paste0("comp.",seq(1,nrow(exp_var)))
+  rownames(exp_var) = paste0("comp",seq(1,nrow(exp_var)))
 
 
   pcx.y <- ggplot(table, aes_string(x=PCx,y=PCy)) +geom_point(size = I(3), aes(color = factor(type))) +
