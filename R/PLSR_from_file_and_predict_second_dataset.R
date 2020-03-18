@@ -39,9 +39,9 @@
 # sample.type2 = info$type
 # train_string = "tofile1"
 PLSR_from_file_and_predict_second_dataset = function(file, file2, sample.names, sample.type, y.response, sample.names2=NULL, sample.type2=NULL, train_string,
-                                                     title = "PLSR", comp.x = "comp.1", comp.y = "comp.2",comps = 3, scale = F, labels = F, fread = FALSE){
-  requireNamespace(mixOmics)
-  requireNamespace(ggplot2)
+                                                     title = "PLSR", comp.x = "comp1", comp.y = "comp2",comps = 5, scale = F, labels = F, fread = FALSE){
+
+	require(mixOmics); require(ggplot2)
 
   if(fread==T){
     data = fread(file)

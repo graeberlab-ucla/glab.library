@@ -1,5 +1,5 @@
 #' Partial Least Squares Regression from file
-#' Last mod: 6/17/18, ksheu
+#' Last mod: 3/17/20, ksheu
 #'
 #' Writes out Xscores, Xloadings, and PVE.
 #' Plot scores output with plot_pls()
@@ -19,14 +19,10 @@
 #'
 
 
-setwd("C:/Users/msheu/Documents/R/glab.library/vignettes/PCA_tutorial")
-file = "Beltran_2016_rsem_genes_upper_norm_counts_coding_log2.txt"
-center=TRUE;scale=FALSE;fread = FALSE
 
 PLSR_from_file = function(file, sample.names, sample.type, y.response, title = "PLSR",comps = 5, scale = F, comp.x = "comp.1", comp.y = "comp.2", labels = F, fread = F){
-
-  requireNamespace(mixOmics)
-  requireNamespace(ggplot2)
+  #requireNamespace(mixOmics)
+  #requireNamespace(ggplot2)
   require(mixOmics);require(ggplot2)
 
   if (fread == T) {

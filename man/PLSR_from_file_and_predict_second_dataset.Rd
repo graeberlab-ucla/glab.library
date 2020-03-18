@@ -14,9 +14,9 @@ PLSR_from_file_and_predict_second_dataset(
   sample.type2 = NULL,
   train_string,
   title = "PLSR",
-  comp.x = "comp.1",
-  comp.y = "comp.2",
-  comps = 3,
+  comp.x = "comp1",
+  comp.y = "comp2",
+  comps = 5,
   scale = F,
   labels = F,
   fread = FALSE
