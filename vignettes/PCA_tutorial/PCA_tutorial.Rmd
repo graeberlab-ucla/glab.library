@@ -67,7 +67,7 @@ plot_pca("Beltran_2016_rsem_genes_upper_norm_counts_coding_log2_prcomp_scores.tx
 PLSR_from_file("Beltran_2016_rsem_genes_upper_norm_counts_coding_log2.txt", human.info$sample, human.info$type,
     (ifelse(human.info$type=="NEPC", 1, 0)), comps = 5, scale = F)
 plot_pls("Beltran_2016_rsem_genes_upper_norm_counts_coding_log2_PLSR_Xscores.txt",
-    human.info$sample, human.info$type, title = "PLSR", labels =F, PCx = "comp.1", PCy = "comp.2", ellipse = T, conf = 0.90)
+    human.info$sample, human.info$type, title = "PLSR", labels =F, PCx = "comp1", PCy = "comp2", ellipse = T, conf = 0.90)
 
 
 # for varimax run ----

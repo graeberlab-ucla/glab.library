@@ -25,13 +25,17 @@ plot_pca = function(file, info.name, info.type, title = "", labels = TRUE, PCx="
   require(vegan)
   table <- read.table(file, header = TRUE)
   table$type = info.type[match(table$Score, info.name)]
-  if (fliph==T){table[,PCx] = table[,PCx]*-1}
-  if (flipv==T){table[,PCy] = table[,PCy]*-1}
   
+  if (grepl("scores_VARIMAX.txt", file)){
+    PCx = gsub("PC","V", PCx)
+    PCy = gsub("PC","V", PCy)
+    if (fliph==T){table[,PCx] = table[,PCx]*-1}
+    if (flipv==T){table[,PCy] = table[,PCy]*-1}
+  }
   
   sdev_name = paste0(gsub("scores.txt","",file),"sdev.txt")
   
-  if (any(grepl(sdev_name,list.files()))){
+  if ((sdev_name %in% list.files() )){
   sdev = read.delim(paste0(gsub("scores.txt","",file),"sdev.txt"))
   sdev$var = unlist(sdev^2)
   sdev$pve = unlist(round(sdev$var/sum(sdev$var) * 100, digits = 2))
