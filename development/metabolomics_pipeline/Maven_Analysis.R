@@ -12,8 +12,8 @@ library(writexl)
 ####
 library(tidyverse)
 
-data_dir <- "K:/Teitell lab/JH-07112020_7-8_Vanq"
-output_dir <- "K:/Teitell lab/JH-07112020_7-8_Vanq/test3"
+data_dir <- "K:/Deb lab/SL-07082020_6-22_N15ATP_medium_Vanq"
+output_dir <- "K:/Deb lab/SL-07082020_6-22_N15ATP_medium_Vanq/test"
 diff_computers <- FALSE
 ifelse (grepl("ICS", data_dir), ICS <- TRUE, ICS <- FALSE)
 #set tracer_type to "none", "partial", or "full"
@@ -21,14 +21,14 @@ tracer_type <- "full"
 #set normalize to TRUE or FALSE 
 normalize <- FALSE
 #set correct_for to "CN" of "N"
-correct_for <- "C"
+correct_for <- "N"
 
 #Abbreviation Data
 library(googlesheets4)
 #Abbrev_NEW
-#Abbrev <- read_sheet("https://docs.google.com/spreadsheets/d/118M3rvfJAOQrOoYEHZVjEFg_k0CMwK9i8wq56u_ZXP4/edit?ts=5eaa1a9e#gid=220628921")
+#Abbrev <- read_sheet("https://urldefense.com/v3/__https://docs.google.com/spreadsheets/d/118M3rvfJAOQrOoYEHZVjEFg_k0CMwK9i8wq56u_ZXP4/edit?ts=5eaa1a9e*gid=220628921__;Iw!!F9wkZZsI-LA!XmVAZDO4J6uTvbGEkBSp4ciGUTmJV3kaKV2CRl6PvtLbnRUf7IdNwwiXQDjbZcOuLK4JLQ$ ")
 #Abbrev_NEW2
-#Abbrev <- read_sheet("https://docs.google.com/spreadsheets/d/1He49QJYE1ld0VUgzNTNht-AuoznydEL9ysjCPRkgk1Y/edit#gid=220628921")
+#Abbrev <- read_sheet("https://urldefense.com/v3/__https://docs.google.com/spreadsheets/d/1He49QJYE1ld0VUgzNTNht-AuoznydEL9ysjCPRkgk1Y/edit*gid=220628921__;Iw!!F9wkZZsI-LA!XmVAZDO4J6uTvbGEkBSp4ciGUTmJV3kaKV2CRl6PvtLbnRUf7IdNwwiXQDjbZcNAFN6BQA$ ")
 Abbrev <- read_excel("C:/Users/FTsang/Downloads/Abbrev_NEW2 (1).xlsx")
 Abbrev <- Abbrev[-c(248,249),]
 
@@ -50,6 +50,8 @@ info$Condition <- factor(info$Condition, levels = unique(info$Condition))
 
 setwd(data_dir)
 data <- read_csv(list.files()[grep('filtered',tolower(list.files()))])
+### Using all data raw instead of all data raw filtered
+data <- read_csv(list.files()[grep('raw',tolower(list.files()))][2])
 colnames(data)[1] <- "Used_ID"
 data <- data %>% group_by(Used_ID) %>% do( data.frame(with(data=., .[order(Iso),] )) )
 
@@ -62,10 +64,8 @@ for (i in 1:nrow(Abbrev))
   data$Used_ID[as.character(data$Used_ID) == Abbrev$Abb[i]] <- as.character(Abbrev$Used_ID[i])
 
 #ISTD Plot
-### Added code to ensure that Norvaline is not included in the ISTD plot
-std <- data[which(data$Iso == "Std" & data$Used_ID != "Norvaline"), ]
-### Keep Norvaline in data (?)
-data <- data[-which(data$Iso == "Std" & data$Used_ID != "Norvaline"), ]
+std <- data[which(data$Iso == "Std"), ]
+data <- data[-which(data$Iso == "Std"), ]
 if(sum(grepl("blank", colnames(std))) > 0 )
   std <- std[,-which(grepl("blank", colnames(std)))]
 
@@ -122,7 +122,6 @@ dev.off()
 
 
 #Normalize 
-normalize <- FALSE
 if(normalize)
 {
   output_file <- paste0(Title, "_raw data table normalized.csv")
@@ -133,6 +132,7 @@ if(normalize)
 {
   output_file <- paste0(Title, "_raw data table unnormalized.csv")
 }
+
 
 
 data_output <- left_join(x = data, y = Abbrev, by = "Used_ID")
@@ -213,33 +213,6 @@ data <- data[,col.order]
 for (i in 1:length(info$Sample.Name)) 
   colnames(data)[i+2] <- info$Sample.Name[i]
 info_ordered <- info[order(info$Run.Order),]
-
-#### Added code to produce QC Norvaline plot
-#Creating Norvaline Plot
-setwd(output_dir)
-if(!ICS)
-{
-  Norv <- data %>%
-    filter(Used_ID=='Norvaline') %>%
-    gather(Sample, Norv,-Used_ID, -Iso) %>%
-    .$Norv
-  
-  pdf(file = paste0("QC-Norvaline-", Title, ".pdf"), width=12, height=9, pointsize=12)
-  norv_plot<-data %>%
-    filter(Used_ID=='Norvaline') %>%
-    gather(Sample, Value,-Used_ID, -Iso) %>%
-    mutate(Sample=factor(Sample, levels=info_ordered$Sample.Name)) %>%  
-    dplyr::select(Sample, Value) %>%
-    ggplot(., aes(Sample, Value)) +
-    geom_point(size=3) +
-    geom_line(aes(as.integer(Sample), Value), color='blue') +
-    labs(x='Sample Name',y='Response',title='Norvaline Response') +
-    theme(axis.text.x=element_text(angle=90, vjust=0.5, hjust=1)) + scale_x_discrete(limit = info_ordered$Sample.Name)
-  print(norv_plot)  #print statement is required to plot within if statements, loops, functions
-  dev.off()
-}
-####
-
 
 norm <- data
 norm <- norm[!norm$Used_ID=="Norvaline",] 
@@ -352,10 +325,9 @@ colors <- c("turquoise","red","plum4","steelblue1","red4","springgreen2","slateb
 ext <- 'Relative Amounts'
 matrix <- RelA
 if (exists('samples')==F) samples <- info
-#ann <- select(samples, Condition, Cell.Number) %>%
-  #as.data.frame()
+ann <- dplyr::select(samples, Condition, Cell.Number) %>%
+  as.data.frame()
 #ann <- samples[1:6,] %>% select(Sample, Condition, Cell.Number) %>% as.data.frame()
-ann <- samples[1:6,] %>% select(Condition, Cell.Number) %>% as.data.frame()
 rownames(ann) <- colnames(matrix)
 ann$Norvaline <- 1
 ann$Cell.Number <- 1
@@ -376,7 +348,7 @@ pheatmap::pheatmap(matrix, cluster_row = T, cluster_col = T,
                    cellwidth = 20, cellheight = 10,
                    annotation=ann, annotation_colors = ann_colors,
                    show_colnames = F, main=paste(Title,ext,sep='-'),
-                   filename=heatmap.title, width = 9, height = 11)
+                   filename=heatmap.title, width = 10, height = 20)
 dev.set(dev.next())
 
 heatmap.title <- paste0(Title, "-Heatmap-", ext, "-Unclustered.pdf")
@@ -388,7 +360,7 @@ pheatmap::pheatmap(matrix, cluster_row = T, cluster_col = F,
                    cellwidth = 20, cellheight = 10,
                    annotation=ann, annotation_colors = ann_colors,
                    show_colnames = F, main=paste(Title,ext,sep='-'),
-                   filename=heatmap.title, width = 9, height = 11)
+                   filename=heatmap.title, width = 10, height = 20)
 dev.set(dev.next())
 
 #### end of make_heatmap
@@ -447,26 +419,59 @@ if(tracer_type == "partial" | tracer_type == "full")
     else data3$Sig[i]=""
   }
   
-  ### These lines were originally commented out
   setwd(output_dir)
-  #write.csv(data3, file=paste0(Title,"-Isotopomer data.csv"), row.names=FALSE)
   write.csv(data3, file=paste0(Title,"-Isotopologue data uncorrected.csv"), row.names=FALSE)
-  ##write.csv(data3, file=paste0(Title, '-uncorrected_MID.csv'), row.names=F)
   ## end of make_MID
 }
 
 library(stringr)
 library(writexl)
 library(data.table)
-# molecule_C$Molecule[molecule_C$Molecule == "5M-adenosine"] <- "5M-thioadenosine"
+### Find all metabolites with 0 Nr.N
+if (correct_for == "N") {
+  no_nitrogen <- Abbrev$Abb[Abbrev$Nr.N == 0]
+}
+
 ##CORRECTION (using IsoCorrectoR)
 if(tracer_type == "partial" | tracer_type == "full")
 {
   library(IsoCorrectoR)
-  temp <- correct_iso2(data3, correct_for, correct_for)
-  ### C13-10 Iso got turned into C13-1C12 PARENT in the correct_iso function
-  ## Need to fix correct_iso gsub
-  temp$Iso[temp$Iso == "C13-1C12 PARENT"] <- "C13-10"
+  if (correct_for == "N") {
+    ### Create dataframe of rows of data3 where the metabolite N has 0 Nr.N
+    no_nitrogen_data3 <- data3[data3$Name %in% no_nitrogen,]
+    ### Create dataframe of rows of data3 where all metabolites have one or more Nr.N
+    nitrogen_data3 <- data3[!data3$Name %in% no_nitrogen,]
+    ### Use the subsetted dataframe to run correct_iso2
+    temp <- correct_iso2(nitrogen_data3, correct_for, correct_for)
+    temp$Condition[temp$Condition == "MRVM-E-A"] <- "MRVM-E+A"
+    temp$Condition[temp$Condition == "CF-E-A"] <- "CF-E+A"
+    ### Add Corrected Value column to no_nitrogen_data3
+    no_nitrogen_data3$Corrected_Value <- no_nitrogen_data3$Value
+    #no_nitrogen_data3$Value <- NULL
+    ### Rearrange no_nitrogen_data3 to match temp
+    names(no_nitrogen_data3)[16] <- "Old Uncorrected Value"
+    no_nitrogen_data3$Norm_Av <- NA
+    no_nitrogen_data3$Norm_Std <- NA
+    no_nitrogen_data3$CV <- NA
+    no_nitrogen_data3$Av <- NA
+    no_nitrogen_data3$Nr.C.x <- NA
+    no_nitrogen_data3$MID1 <- NA
+    no_nitrogen_data3$MID2 <- NA
+    no_nitrogen_data3$MID3 <- NA
+    no_nitrogen_data3$MID4 <- NA
+    no_nitrogen_data3$KEGG.ID <- NA
+    no_nitrogen_data3$Nr.C.y <- NA
+    no_nitrogen_data3$Value <- NA
+    no_nitrogen_data3$ANOVA <- NA
+    no_nitrogen_data3$Sig <- NA
+    no_nitrogen_data3$Value <- NULL
+    no_nitrogen_data3 <- no_nitrogen_data3 %>% dplyr::relocate(Iso, .after = Name)
+    no_nitrogen_data3 <- no_nitrogen_data3 %>% dplyr::relocate(Corrected_Value, .after = Condition)
+    ### Add the uncorrected rows back into temp and continue the analysis
+    temp <- rbind(temp, no_nitrogen_data3)
+  } else if (correct_for == "C") {
+    temp <- correct_iso2(data3, correct_for, correct_for)
+  }
   
   temp$Value <- NULL
   colnames(temp)[which(colnames(temp) == "Corrected_Value")] <- "Value"
@@ -512,10 +517,18 @@ if(tracer_type == "partial" | tracer_type == "full")
     else data3$Sig[i]=""
   }
   
-  data3$Condition <- factor(data3$Condition, levels = levels(data4$Condition))
+  ### This line is turning some of data3$Condition into NAs
+  ### But data4 is missing two levels compared to data3
+  ### Investigate where data4 came from - relative amounts: so why are there only 4 conditions
+  ### There are originally only 4 conditions
+  ### When are two more conditions added? Probably has to do with using correct_iso()
+  ###data3$Condition <- factor(data3$Condition, levels = levels(data4$Condition))
+  data3$Condition <- as.factor(data3$Condition)
+  ###test <- as.factor(data3$Condition)
+  ###levels(test)
+  ###levels(data4$Condition)
   
-  #### Added to output corrected MID, which comes from running IsoCorrectR
-  #write.csv(data3, file=paste0(Title, '-corrected_MID.csv'), row.names=F)
+  setwd(output_dir)
   write.csv(data3, file=paste0(Title,"-Isotopologue data corrected.csv"), row.names=FALSE)
 }
 
@@ -559,9 +572,10 @@ if(tracer_type == "partial" | tracer_type == "full")
   ## end of make_matrix
   ### Had to change function make_heatmap() into one called make_heatmap2() where
   ## rows with zero variance are taken out before pheatmap is called
-  make_heatmap2(MID, info, width = 15, height = 60)
+  # 15, 60
+  make_heatmap2(MID, info, width = 10, height = 30)
   dev.set(dev.next()) 
-  make_heatmap2(MID, info, width = 15, height = 60, cluster_samples = F)
+  make_heatmap2(MID, info, width = 10, height = 30, cluster_samples = F)
 }
 
 ## make_data_labeled
@@ -625,7 +639,6 @@ if(tracer_type == "full")
   DF <- data3
   
   DF$num <- NA
-  ### Here, there are 12 in Df$Iso that are C13-1C12 Parent
   for (i in 1:nrow(DF))
   {
     if(DF$Iso[i] == "C12 PARENT") #Parent
@@ -684,8 +697,7 @@ if(tracer_type == "full")
   ANOVA=rep(ANOVA,1,each=length(unique(info$Condition)))
   
   ### This gives an error: Each row of output must be identified by a unique combination of keys.
-  ### No longer needed? FC <- FC[!duplicated(FC[,]), ]
-  #FC <- FC %>% distinct()
+  ###FC <- FC[!duplicated(FC[,]), ]
   FC <- spread(FC, Exp, FC) %>%
     arrange(Name) %>%
     mutate(Sig='NA')
@@ -750,8 +762,12 @@ if(tracer_type == "full")
   matrix[is.na(matrix)] <- 0
   heatmap.title=paste(Title, '-Heatmap-',ext, '-Unclustered', '.pdf', sep='')
   
-  ann$Cell.Number <- rep(1, 6)
-  # Might need to adjust width and height of heatmap here
+  ### Added code to remove rows with zero variance
+  #zero_variance <- apply(matrix, 1, var)
+  #zero_variance_vec <- zero_variance[zero_variance == 0]
+  #matrix_filt <- matrix[!rownames(matrix) %in% names(zero_variance_vec),]
+  #Changed matrix to matrix_filt
+  ann$Cell.Number <- 1
   pheatmap::pheatmap(matrix, cluster_row = T, cluster_col = F,
                      clustering_distance_rows='correlation',
                      clustering_distance_cols='correlation',
@@ -760,7 +776,8 @@ if(tracer_type == "full")
                      cellwidth = 20, cellheight = 10,
                      annotation=ann, annotation_colors = ann_colors,
                      show_colnames = F, main=paste(Title,ext,sep='-'),
-                     filename=heatmap.title, width = 10, height = 20)
+                     filename=heatmap.title, width = 9, height = 11)
+  # width = 10, height = 20
 }
 
 
@@ -835,19 +852,19 @@ if(tracer_type == "none")
 pdf(file = plotname, width=14, height=10, pointsize=12)
 
 bar_update_manual('glycolysis',data4, n = num_conditions, type = "tf")
-Maven_MID_plot('glycolysis',data3, n = num_conditions, type = "tf", only_M0 = only_M0)
-Maven_MID_plot('glycolysis',data_labeled, n = num_conditions, type = "tf", only_M0 = only_M0)
-Maven_MID_plot('glycolysis',FC, n = num_conditions, type = "tf", only_M0 = only_M0)
+#Maven_MID_plot('glycolysis',data3, n = num_conditions, type = "tf", only_M0 = only_M0)
+#Maven_MID_plot('glycolysis',data_labeled, n = num_conditions, type = "tf", only_M0 = only_M0)
+#Maven_MID_plot('glycolysis',FC, n = num_conditions, type = "tf", only_M0 = only_M0)
 
 bar_update_manual("TCA",data4, n = num_conditions, type = "tf")
-Maven_MID_plot("TCA",data3, n = num_conditions, type = "tf", only_M0 = only_M0)
-Maven_MID_plot("TCA",data_labeled, n = num_conditions, type = "tf", only_M0 = only_M0)
-Maven_MID_plot("TCA",FC, n = num_conditions, type = "tf", only_M0 = only_M0)
+#Maven_MID_plot("TCA",data3, n = num_conditions, type = "tf", only_M0 = only_M0)
+#Maven_MID_plot("TCA",data_labeled, n = num_conditions, type = "tf", only_M0 = only_M0)
+#Maven_MID_plot("TCA",FC, n = num_conditions, type = "tf", only_M0 = only_M0)
 
 bar_update_manual("PPP",data4, n = num_conditions, type = "tf")
-Maven_MID_plot("PPP",data3, n = num_conditions, type = "tf", only_M0 = only_M0)
-Maven_MID_plot("PPP",data_labeled, n = num_conditions, type = "tf", only_M0 = only_M0)
-Maven_MID_plot("PPP",FC, n = num_conditions, type = "tf", only_M0 = only_M0)
+#Maven_MID_plot("PPP",data3, n = num_conditions, type = "tf", only_M0 = only_M0)
+#Maven_MID_plot("PPP",data_labeled, n = num_conditions, type = "tf", only_M0 = only_M0)
+#Maven_MID_plot("PPP",FC, n = num_conditions, type = "tf", only_M0 = only_M0)
 
 bar_update_manual("Curr",data4, n = num_conditions, type = "tf")
 Maven_MID_plot("Curr",data3, n = num_conditions, type = "tf", only_M0 = only_M0)
@@ -860,19 +877,19 @@ Maven_MID_plot("Cys",data_labeled, n = num_conditions, type = "tf", only_M0 = on
 Maven_MID_plot("Cys",FC, n = num_conditions, type = "tf", only_M0 = only_M0)
 
 bar_update_manual("AA",data4, n = num_conditions, type = "tf")
-Maven_MID_plot("AA",data3, n = num_conditions, type = "tf", only_M0 = only_M0)
-Maven_MID_plot("AA",data_labeled, n = num_conditions, type = "tf", only_M0 = only_M0)
-Maven_MID_plot("AA",FC, n = num_conditions, type = "tf", only_M0 = only_M0)
+#Maven_MID_plot("AA",data3, n = num_conditions, type = "tf", only_M0 = only_M0)
+#Maven_MID_plot("AA",data_labeled, n = num_conditions, type = "tf", only_M0 = only_M0)
+#Maven_MID_plot("AA",FC, n = num_conditions, type = "tf", only_M0 = only_M0)
 
 bar_update_manual("FA",data4, n = num_conditions, type = "tf")
-Maven_MID_plot("FA",data3, n = num_conditions, type = "tf", only_M0 = only_M0)
-Maven_MID_plot("FA",data_labeled, n = num_conditions, type = "tf", only_M0 = only_M0)
-Maven_MID_plot("FA",FC, n = num_conditions, type = "tf", only_M0 = only_M0)
+#Maven_MID_plot("FA",data3, n = num_conditions, type = "tf", only_M0 = only_M0)
+#Maven_MID_plot("FA",data_labeled, n = num_conditions, type = "tf", only_M0 = only_M0)
+#Maven_MID_plot("FA",FC, n = num_conditions, type = "tf", only_M0 = only_M0)
 
 bar_update_manual("Hex",data4, n = num_conditions, type = "tf")
-Maven_MID_plot("Hex",data3, n = num_conditions, type = "tf", only_M0 = only_M0)
-Maven_MID_plot("Hex",data_labeled, n = num_conditions, type = "tf", only_M0 = only_M0)
-Maven_MID_plot("Hex",FC, n = num_conditions, type = "tf", only_M0 = only_M0)
+#Maven_MID_plot("Hex",data3, n = num_conditions, type = "tf", only_M0 = only_M0)
+#Maven_MID_plot("Hex",data_labeled, n = num_conditions, type = "tf", only_M0 = only_M0)
+#Maven_MID_plot("Hex",FC, n = num_conditions, type = "tf", only_M0 = only_M0)
 
 bar_update_manual("Adenine",data4, n = num_conditions, type = "tf")
 Maven_MID_plot("Adenine",data3, n = num_conditions, type = "tf", only_M0 = only_M0)
@@ -880,9 +897,9 @@ Maven_MID_plot("Adenine",data_labeled, n = num_conditions, type = "tf", only_M0 
 Maven_MID_plot("Adenine",FC, n = num_conditions, type = "tf", only_M0 = only_M0)
 
 bar_update_manual("Cytosine",data4, n = num_conditions, type = "tf")
-Maven_MID_plot("Cytosine",data3, n = num_conditions, type = "tf", only_M0 = only_M0)
-Maven_MID_plot("Cytosine",data_labeled, n = num_conditions, type = "tf", only_M0 = only_M0)
-Maven_MID_plot("Cytosine",FC, n = num_conditions, type = "tf", only_M0 = only_M0)
+#Maven_MID_plot("Cytosine",data3, n = num_conditions, type = "tf", only_M0 = only_M0)
+#Maven_MID_plot("Cytosine",data_labeled, n = num_conditions, type = "tf", only_M0 = only_M0)
+#Maven_MID_plot("Cytosine",FC, n = num_conditions, type = "tf", only_M0 = only_M0)
 
 bar_update_manual("Guanine",data4, n = num_conditions, type = "tf")
 Maven_MID_plot("Guanine",data3, n = num_conditions, type = "tf", only_M0 = only_M0)
@@ -890,19 +907,19 @@ Maven_MID_plot("GUanine",data_labeled, n = num_conditions, type = "tf", only_M0 
 Maven_MID_plot("Guanine",FC, n = num_conditions, type = "tf", only_M0 = only_M0)
 
 bar_update_manual("Thymine",data4, n = num_conditions, type = "tf")
-Maven_MID_plot("Thymine",data3, n = num_conditions, type = "tf", only_M0 = only_M0)
-Maven_MID_plot("Thymine",data_labeled, n = num_conditions, type = "tf", only_M0 = only_M0)
-Maven_MID_plot("Thymine",FC, n = num_conditions, type = "tf", only_M0 = only_M0)
+#Maven_MID_plot("Thymine",data3, n = num_conditions, type = "tf", only_M0 = only_M0)
+#Maven_MID_plot("Thymine",data_labeled, n = num_conditions, type = "tf", only_M0 = only_M0)
+#Maven_MID_plot("Thymine",FC, n = num_conditions, type = "tf", only_M0 = only_M0)
 
 bar_update_manual("Uracil",data4, n = num_conditions, type = "tf")
-Maven_MID_plot("Uracil",data3, n = num_conditions, type = "tf", only_M0 = only_M0)
-Maven_MID_plot("Uracil",data_labeled, n = num_conditions, type = "tf", only_M0 = only_M0)
-Maven_MID_plot("Uracil",FC, n = num_conditions, type = "tf", only_M0 = only_M0)
+#Maven_MID_plot("Uracil",data3, n = num_conditions, type = "tf", only_M0 = only_M0)
+#Maven_MID_plot("Uracil",data_labeled, n = num_conditions, type = "tf", only_M0 = only_M0)
+#Maven_MID_plot("Uracil",FC, n = num_conditions, type = "tf", only_M0 = only_M0)
 
 bar_update_manual('Fru',data4, n = num_conditions, type = "tf")
-Maven_MID_plot('Fru',data3, n = num_conditions, type = "tf", only_M0 = only_M0)
-Maven_MID_plot("Fru",data_labeled, n = num_conditions, type = "tf", only_M0 = only_M0)
-Maven_MID_plot("Fru",FC, n = num_conditions, type = "tf", only_M0 = only_M0)
+#Maven_MID_plot('Fru',data3, n = num_conditions, type = "tf", only_M0 = only_M0)
+#Maven_MID_plot("Fru",data_labeled, n = num_conditions, type = "tf", only_M0 = only_M0)
+#Maven_MID_plot("Fru",FC, n = num_conditions, type = "tf", only_M0 = only_M0)
 
 bar_update_manual('CoAs',data4, n = num_conditions, type = "tf")
 Maven_MID_plot('CoAs',data3, n = num_conditions, type = "tf", only_M0 = only_M0)
@@ -910,9 +927,9 @@ Maven_MID_plot("CoAs",data_labeled, n = num_conditions, type = "tf", only_M0 = o
 Maven_MID_plot("CoAs",FC, n = num_conditions, type = "tf", only_M0 = only_M0)
 #first set
 bar_update_manual(unname(unlist(non_data4[1])),data4, n = num_conditions, type = "tf", title_type = "nonpathway1")
-Maven_MID_plot(unname(unlist(non_data3[1])),data3, n = num_conditions, type = "tf", title_type = "nonpathway1", only_M0 = only_M0)
-Maven_MID_plot(unname(unlist(non_data3[1])),data_labeled, n = num_conditions, type = "tf", title_type = "nonpathway1", only_M0 = only_M0)
-Maven_MID_plot(unname(unlist(non_data3[1])),FC, n = num_conditions, type = "tf", title_type = "nonpathway1", only_M0 = only_M0)
+#Maven_MID_plot(unname(unlist(non_data3[1])),data3, n = num_conditions, type = "tf", title_type = "nonpathway1", only_M0 = only_M0)
+#Maven_MID_plot(unname(unlist(non_data3[1])),data_labeled, n = num_conditions, type = "tf", title_type = "nonpathway1", only_M0 = only_M0)
+#Maven_MID_plot(unname(unlist(non_data3[1])),FC, n = num_conditions, type = "tf", title_type = "nonpathway1", only_M0 = only_M0)
 
 #second set
 bar_update_manual(unname(unlist(non_data4[2])),data4, n = num_conditions, type = "tf", title_type = "nonpathway2")
