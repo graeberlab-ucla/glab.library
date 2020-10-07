@@ -121,7 +121,19 @@ correct_iso2<-function(df,label,correction){
   if (label=="N" & correction =="N"){
     data("molecule_N")
     molecule_N$Molecule[which(molecule_N$Molecule == "5M-adenosine")] <- "5M-thioadenosine"
-    write_xlsx(molecule_N,"molecule_file_N.xlsx")
+    ####
+    ### Use Abbrev to see find Nr.N and Nr.C
+    ### Find all missing metabolites that have Nr.N > 0
+    new_row <- c("dT","N2LabN2",NA)
+    molecule_N <- rbind(molecule_N, new_row)
+    new_row <- c("Uric acid","N4LabN4",NA)
+    molecule_N <- rbind(molecule_N, new_row)
+    #new_row <- c("Succ-semialdehyde","C4LabC4",NA)
+    #molecule_C <- rbind(molecule_C, new_row)
+    #molecule_C$Molecule[molecule_C$Molecule == "Uric Acid"] <- "Uric acid"
+    ####
+
+write_xlsx(molecule_N,"molecule_file_N.xlsx")
     corrected<-IsoCorrection(MeasurementFile=df_file_name, ElementFile="element_file.xlsx", MoleculeFile="molecule_file_N.xlsx",
                              CorrectTracerImpurity=FALSE, CorrectTracerElementCore=TRUE,
                              CalculateMeanEnrichment=TRUE, UltraHighRes=FALSE,
