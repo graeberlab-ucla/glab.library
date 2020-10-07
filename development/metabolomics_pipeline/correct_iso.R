@@ -1,3 +1,6 @@
+
+# uses IsoCorrectoR package, IsoCorrection() function
+
 correct_iso2<-function(df,label,correction){
   df_name<-paste(deparse(substitute(df)))
   df<-data.frame(df)
@@ -5,6 +8,14 @@ correct_iso2<-function(df,label,correction){
   if ("Exp" %in% names(df) == FALSE){
     df<-gather(df,key="Exp",value="Value",colnames(df)[grep("Exp",colnames(df))])
   }
+  
+  #added by TGG Oct 7 2020 - also other lines using iso_format
+  if (any(grepl("M",df[,"Iso"]))) {iso_format = "M"
+  } else if (any(grepl("C12 parent",df[,"Iso"]))) {iso_format = "C12 parent"
+  } else if (any(grepl("C12 PARENT",df[,"Iso"]))) {iso_format = "C12 PARENT"}
+  
+  if (!exists("iso_format") | iso_format == "") {stop("format of the Iso(topomer) column is not recognized")}
+
   
   df2<-df
   colnames(df)<-gsub("\\.","-",colnames(df))
@@ -20,13 +31,23 @@ correct_iso2<-function(df,label,correction){
   if (length(non_carbon)!=0){non_carbon_metabolites_present=TRUE}
   
   
-  
-  
   if (label=="C" & correction=="C"){ #from tracefinder 
     #numeric_iso<-parse_number(df$Iso)
     #df$Iso<-numeric_iso
-    df$Iso<-gsub("C12 PARENT", 0,df$Iso)
-    df$Iso<-gsub("C13-","",df$Iso)
+    
+    #added/edited by TGG Oct 7 2020
+    if (iso_format == "M") {
+      df$Iso<-gsub("M","",df$Iso)
+    }
+    if (iso_format == "C12 PARENT") {
+      df$Iso<-gsub("C12 PARENT", 0,df$Iso)
+      df$Iso<-gsub("C13-","",df$Iso)
+    }
+    if (iso_format == "C12 parent") {
+      df$Iso<-gsub("C12 parent", 0,df$Iso)
+      df$Iso<-gsub("C13-","",df$Iso)
+    }
+
     df$`Measurements/Samples`<-paste(df$`Measurements/Samples`,df$Iso,sep="_")
     df<-df[,-c(2)]
     rownames(df)<-1:nrow(df)
@@ -128,6 +149,10 @@ correct_iso2<-function(df,label,correction){
     data("molecule_C")
     ##
     molecule_C$Molecule[molecule_C$Molecule == "5M-adenosine"] <- "5M-thioadenosine"
+    
+    #added by TGG Oct 7 2020
+    molecule_C$Molecule[molecule_C$Molecule == "G3P"] <- "GAP"
+    
     new_row <- c("dT","C10LabC10",NA)
     molecule_C <- rbind(molecule_C, new_row)
     new_row <- c("Succ-semialdehyde","C4LabC4",NA)
@@ -173,11 +198,18 @@ correct_iso2<-function(df,label,correction){
     #### Add to this section
     ## Originally one line: corrected$Iso<-paste("M",corrected$Iso,sep="")
     ####
-    corrected$Iso<-gsub(0,"C12 PARENT",corrected$Iso)
-    for (i in 1:nrow(corrected)){
-      if (corrected[i,2]!="C12 PARENT"){
-        corrected[i,2]<-paste("C13-",corrected[i,2],sep="")
-      }
+    
+    #added/edited by TGG Oct 7 2020
+    if (iso_format == "M") {
+      corrected$Iso<-paste("M",corrected$Iso,sep="")
+    }
+    if (iso_format == "C12 PARENT" || iso_format == "C12 parent") {
+      corrected$Iso<-gsub("^0$",iso_format,corrected$Iso)
+      for (i in 1:nrow(corrected)){
+        if (corrected[i,2]!=iso_format){
+          corrected[i,2]<-paste("C13-",corrected[i,2],sep="")
+        }
+      }    
     }
     ####
     

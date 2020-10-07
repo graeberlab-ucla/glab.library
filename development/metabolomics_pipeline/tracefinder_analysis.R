@@ -1,5 +1,5 @@
 # devtools::install_github("danielbraas/MetabFUN")
-#devtools::install_github("juyeki/MetabR")
+# devtools::install_github("juyeki/MetabR")
 library(MetabFUN)
 library(MetabR)
 library(tidyr)
@@ -9,12 +9,36 @@ library(ggrepel)
 #Sys.setenv(JAVA_HOME = "C:\\Program Files\\Java\\jdk-11.0.8\\")
 library(xlsx)
 
-data_dir <- "M:/TraceFinderData/4.0/Projects/Cells/Nakamura Lab/JN-08202020_7-12_Gln_Vanq"
-output_dir <- "M:/TraceFinderData/4.0/Projects/Cells/Nakamura Lab/JN-08202020_7-12_Gln_Vanq/test2"
+###### parameters ######
+
+#data_dir <- "M:/TraceFinderData/4.0/Projects/Cells/Nakamura Lab/JN-08202020_7-12_Gln_Vanq" #Klara
+#output_dir <- "M:/TraceFinderData/4.0/Projects/Cells/Nakamura Lab/JN-08202020_7-12_Gln_Vanq/test2" #Klara
+
+#mac paths
+data_dir <- "/Users/tgraeber/Dropbox/glab/Metabolomics Center/Metabolomics Pipeline Scripts and Notes/workspace/Projects/Cells/Nakamura JN-08202020_7-12_Gln_Vanq"
+output_dir <- "/Users/tgraeber/Dropbox/glab/Metabolomics Center/Metabolomics Pipeline Scripts and Notes/workspace/Projects/Cells/Nakamura JN-08202020_7-12_Gln_Vanq/test3"
+
 #set tracer_type to: "full", "partial", or "none"
 tracer_type <- "full"
 diff_computers <- FALSE
 ifelse (grepl("ICS", data_dir), ICS <- TRUE, ICS <- FALSE)
+
+#set natural isotope abundance parameters
+if (tracer_type == "full" || tracer_type == "partial") {
+  #turn on one of these options
+  if (1) {
+    isotope_correction_flag = "default" #for using the 1996 Fernandez et al. JofMS method (first method used by the UCLA Metabolomics Center)
+  } else if (0) {
+    isotope_correction_flag = "IsoCorrectoR" #for using the IsoCorrectoR method, via our correct_iso function
+    label <- "C"
+    correct_for <- "C"
+  } else if (0) {
+    isotope_correction_flag = "force_uncorrected"
+  } else {
+    stop("need to set isotope_correction_flag")
+  }
+}
+
 
 #Abbreviation Data
 library(googlesheets4)
@@ -22,19 +46,23 @@ library(googlesheets4)
 #Abbrev <- read_sheet("https://docs.google.com/spreadsheets/d/118M3rvfJAOQrOoYEHZVjEFg_k0CMwK9i8wq56u_ZXP4/edit?ts=5eaa1a9e#gid=220628921")
 #Abbrev_NEW2
 #Abbrev <- read_sheet("https://docs.google.com/spreadsheets/d/1He49QJYE1ld0VUgzNTNht-AuoznydEL9ysjCPRkgk1Y/edit#gid=220628921")
+
 ### Read in the most recent version of Abbrev
-Abbrev <-  read_excel("C:/Users/FTsang/Downloads/Abbrev_NEW2 (1).xlsx")
+#Abbrev <-  read_excel("C:/Users/FTsang/Downloads/Abbrev_NEW2 (1).xlsx")
+Abbrev <-  read_excel("/Users/tgraeber/Dropbox/glab/Metabolomics Center/Metabolomics Pipeline Scripts and Notes/workspace/Abbrev_NEW2.xlsx")
 Abbrev <- Abbrev[-c(248,249),]
 
 #Title
 setwd(data_dir)
-Title <- gsub('.xls[x]?','', list.files(pattern='.xls[x]?'))
+#Title <- gsub('.xls[x]?','', list.files(pattern='.xls[x]?'))
+Title <- gsub('.xls[x]?','', list.files(pattern='[Ss]ample.*.xls[x]?'))
 Title <- Title
 Title <- gsub('_sample info sheet|_sample info|sample form|_sampleinfosheet|_Sampleinfosheet', '', Title)
 Title <- gsub(' ', '', Title)
 
 #info 
-info <- read_excel(list.files()[grep('.xls[x]?',list.files())])
+#info <- read_excel(list.files()[grep('.xls[x]?',list.files())])
+info <- read_excel(list.files()[grep('[Ss]ample.*.xls[x]?',list.files())])
 #info$Condition <- gsub("^\\s+|\\s+$", "", info$Condition)     
 info$Condition <- gsub('/', '-', info$Condition)
 info$Condition <- gsub('_', '-', info$Condition)
@@ -116,6 +144,10 @@ data_output <- data_output %>%
 num_samples <- sum(!grepl('QC',info$Sample))
 
 data(anno)
+#data(anno, package="MetabR")
+# data(package = "MetabR") #lists what is available
+#load(file = "/Users/tgraeber/Dropbox/glab/Metabolomics Center/Metabolomics Pipeline Scripts and Notes/pipeline scripts/githup sets - metabolomics R pipeline/MetabR-master/data/anno.rda")
+
 for (i in 1:nrow(Anno))
   data_output$Used_ID[as.character(data_output$Name) == Anno$abbrev[i]] <- as.character(Anno$full_name[i])
 levels(data_output$Iso) <- c(levels(data_output$Iso), "Std")
@@ -327,9 +359,57 @@ colors <- c("turquoise","red","plum4","steelblue1","red4","springgreen2","slateb
             "orangered","darkslateblue","lightseagreen","magenta2","royalblue","yellowgreen","lightsalmon","cyan","maroon1","indianred3","mediumseagreen",
             "slateblue3","hotpink","lemonchiffon1","orangered4","lightcoral","tomato")
 
+###### make MID, FC and data_labeled dataframes and execute natureal abundance correction ######
 if(tracer_type == "full" || tracer_type == "partial")
 {
-  data3 <- make_MID(data2)
+  
+  print("making MID files, and performing natural isotope correction (",isotope_correction_flag,")")
+  if (isotope_correction_flag == "default") {
+  data3 <- make_MID(data2) #make_Mid also executes the natural isotope abundance corrections using an interative algorithm
+  #data3 <- make_MID_tg(data2) #make_Mid also executes the natural isotope abundance corrections using an interative algorithm
+  
+  #tfdata2 <- data2
+  #tfdata3 <- data3
+  #save(tfdata2, file = "tracefinder_data2.rda")
+  #save(tfdata3, file = "tracefinder_data3.rda")
+  # load("tracefinder_data2.rda")
+  # load("tracefinder_data3.rda")
+  
+  } else if (isotope_correction_flag == "IsoCorrectoR" || isotope_correction_flag == "force_uncorrected") {
+    #uncorrected & correction using correct_iso / IsoCorrectoR
+    
+    if (isotope_correction_flag == "force_uncorrected") {
+      dir.name = paste0(output_dir,"/uncorrected")
+      if (!dir.exists(dir.name)) {dir.create(dir.name)}
+      setwd(dir.name)
+      # setwd(output_dir)
+    }
+    
+    data3_uncorr <- make_MID_uncorrected(data2)
+    #save(data3_uncorr, file = "tracefinder_data3_uncorr.rda")
+    
+    data3_corr <- data3
+    data3 <- data3_uncorr
+    
+    if (isotope_correction_flag == "IsoCorrectoR") {
+      
+      dir.name = paste0(output_dir,"/corrected_IsoCorrectoR")
+      if (!dir.exists(dir.name)) {dir.create(dir.name)}
+      setwd(dir.name)
+      # setwd(output_dir)
+
+      data2_isocorrector <- correct_iso2_tg(data3_uncorr, label, correct_for)
+      colnames(data2_isocorrector)[colnames(data2_isocorrector) == "Corrected_Value"] <- "Value"
+      data3_isocorrector <- make_MID_uncorrected(data2_isocorrector)
+      
+      #save(data2_isocorrector, file = "tracefinder_data2_isocorrector.rda")
+      #save(data3_isocorrector, file = "tracefinder_data3_isocorrector.rda")
+
+      data3 <- data3_isocorrector
+      
+    }
+  }
+  
   MID <- make_matrix(data3)
   if(tracer_type == "full")
   {
@@ -342,6 +422,14 @@ if(tracer_type == "full" || tracer_type == "partial")
     data_labeled_mat <- make_matrix(data_labeled)
   }
 }
+
+
+
+
+###### output plots ######
+
+print("making output plots")
+
 RelA <- RelA[which(rownames(RelA) != "ADPfromATP"),]
 make_heatmap(RelA, info)
 dev.set(dev.next()) 
@@ -508,4 +596,6 @@ bar_update_manual(unname(unlist(non_data_labeled[3])),data_labeled, n = num_cond
 bar_update_manual(unname(unlist(non_FC[3])),FC, n = num_conditions, type = "tf", title_type = "nonpathway3", only_M0 = only_M0)
 
 dev.off()
+
+
 
