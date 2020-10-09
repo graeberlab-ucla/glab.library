@@ -9,6 +9,13 @@ library(ggrepel)
 #Sys.setenv(JAVA_HOME = "C:\\Program Files\\Java\\jdk-11.0.8\\")
 library(xlsx)
 
+
+#temp
+source('/Users/tgraeber/Dropbox/glab/workspace/github/glab.library/development/metabolomics_pipeline/make_MID-development.R')
+source('/Users/tgraeber/Dropbox/glab/workspace/github/glab.library/development/metabolomics_pipeline/make_MID_uncorrected.R')
+
+
+
 ###### parameters ######
 
 #data_dir <- "M:/TraceFinderData/4.0/Projects/Cells/Nakamura Lab/JN-08202020_7-12_Gln_Vanq" #Klara
@@ -28,6 +35,15 @@ if (tracer_type == "full" || tracer_type == "partial") {
   #turn on one of these options
   if (1) {
     isotope_correction_flag = "default" #for using the 1996 Fernandez et al. JofMS method (first method used by the UCLA Metabolomics Center)
+    
+    #if true, remove non-M0 MID values going from zero to non-zero unless the increase is above the indicated threshold
+    #in part done because values like 10e-20 will show up in R ggplot barplots 
+    isotope_correction_remove_small_values_flag = TRUE
+    # threshold below is a MID value, meaning it is a percentage
+    # typical value 0.1, typical range 0.01 - 1 
+    isotope_correction_remove_small_values_threshold = 1 
+    if (isotope_correction_remove_small_values_threshold > 1) {stop("please double check that you want to use a large threshold")}
+
   } else if (0) {
     isotope_correction_flag = "IsoCorrectoR" #for using the IsoCorrectoR method, via our correct_iso function
     label <- "C"
@@ -39,6 +55,7 @@ if (tracer_type == "full" || tracer_type == "partial") {
   }
 }
 
+###### process input data ######
 
 #Abbreviation Data
 library(googlesheets4)
@@ -359,21 +376,107 @@ colors <- c("turquoise","red","plum4","steelblue1","red4","springgreen2","slateb
             "orangered","darkslateblue","lightseagreen","magenta2","royalblue","yellowgreen","lightsalmon","cyan","maroon1","indianred3","mediumseagreen",
             "slateblue3","hotpink","lemonchiffon1","orangered4","lightcoral","tomato")
 
+
+
+
+
 ###### make MID, FC and data_labeled dataframes and execute natureal abundance correction ######
 if(tracer_type == "full" || tracer_type == "partial")
 {
   
-  print("making MID files, and performing natural isotope correction (",isotope_correction_flag,")")
+  print(paste0("making MID files, and performing natural isotope correction (",isotope_correction_flag,")"))
   if (isotope_correction_flag == "default") {
-  data3 <- make_MID(data2) #make_Mid also executes the natural isotope abundance corrections using an interative algorithm
-  #data3 <- make_MID_tg(data2) #make_Mid also executes the natural isotope abundance corrections using an interative algorithm
+    
+    
   
-  #tfdata2 <- data2
-  #tfdata3 <- data3
-  #save(tfdata2, file = "tracefinder_data2.rda")
-  #save(tfdata3, file = "tracefinder_data3.rda")
-  # load("tracefinder_data2.rda")
-  # load("tracefinder_data3.rda")
+  if (!isotope_correction_remove_small_values_flag) {
+    
+    data3 <- make_MID(data2) #make_Mid also executes the natural isotope abundance corrections using an interative algorithm
+    #data3 <- make_MID_tg(data2) #make_Mid also executes the natural isotope abundance corrections using an interative algorithm
+    
+  } else {
+    #if true, remove non-M0 MID values going from zero to non-zero unless the increase is above the indicated threshold
+    #in part done because values like 10e-20 will show up in R ggplot barplots 
+    dir.name = paste0(output_dir,"/corrected_remove",isotope_correction_remove_small_values_threshold)
+    if (!dir.exists(dir.name)) {dir.create(dir.name)}
+    setwd(dir.name)
+
+    data3 <- make_MID2(data2, isotope_correction_remove_small_values_flag, isotope_correction_remove_small_values_threshold) #make_Mid also executes the natural isotope abundance corrections using an interative algorithm
+    
+  }
+    
+  # #older attempt, but in the end easier to do this in the Make_MID function (before statistical metrics are applied)
+  # if (0 & isotope_correction_remove_small_values_flag) {
+  #   #if true, remove non-M0 MID values going from zero to non-zero unless the increase is above the indicated threshold
+  #   #in part done because values like 10e-20 will show up in R ggplot barplots 
+  #   dir.name = paste0(output_dir,"/corrected_remove",isotope_correction_remove_small_values_threshold)
+  #   if (!dir.exists(dir.name)) {dir.create(dir.name)}
+  #   setwd(dir.name)
+  #   # setwd(output_dir)
+  #   data3_uncorr <- make_MID_uncorrected(data2)
+  #   
+  #   data3_uncorr.temp <- data3_uncorr[,grepl("Name|Condition|Iso|Exp|MID",colnames(data3_uncorr))]
+  #   colnames(data3_uncorr.temp) <- gsub("((Exp|MID)\\d+)","\\1.uncorr",colnames(data3_uncorr.temp))
+  #   data3.temp <- merge(data3,data3_uncorr.temp,by=c("Name","Condition","Iso"))
+  #   mids <- colnames(data3.temp)[grepl("^MID\\d+$", colnames(data3.temp))]
+  #   for (mid in mids) {
+  #     mid.uncorr = paste0(mid,".uncorr")
+  #     exp = gsub("MID","Exp",mid)
+  #     exp.uncorr = paste0(exp,".uncorr")
+  #     #print(mid) ; print(mid.uncorr) ; print(exp)
+  #     #not M0, MID went from zero to non-zero, and new MID is less than the threshold for cutting
+  #     also_remove_values=1 #remove the corrected peak integration values, as well as the MID values
+  #     if (also_remove_values) {
+  #       data3.temp[(data3.temp$Iso!="M0" & data3.temp[,mid]!=0 & data3.temp[,mid.uncorr]==0 & is.na(data3.temp[,exp.uncorr]) &
+  #             (format(data3.temp[,mid],scientific=F) < isotope_correction_remove_small_values_threshold)),
+  #          c(exp, mid)] <- c(NA, NA)
+  #     } else {
+  #     data3.temp[(data3.temp$Iso!="M0" & data3.temp[,mid]!=0 & data3.temp[,mid.uncorr]==0 & 
+  #             (format(data3.temp[,mid],scientific=F) < isotope_correction_remove_small_values_threshold)),
+  #          mid] <- NA
+  #     }
+  #   }
+  #   
+  #   # data3.temp[(data3.temp$Name=="HMG-CoA" & data3.temp$Iso=="M6"),grepl("Iso|Exp|MID",colnames(data3.temp))][1:5,]
+  #   # data3.temp[(data3.temp$Name=="HMG-CoA" & data3.temp$Iso=="M20"),grepl("Iso|Exp|MID",colnames(data3.temp))][1:5,]
+  #   # data3.temp[(data3.temp$Name=="HMG-CoA" & data3.temp$Iso=="M20"),grepl("Iso|Exp|MID",colnames(data3.temp))][1,9]
+  #   
+  #   # test.matrix <- data3.temp[(data3.temp$Name=="HMG-CoA" & data3.temp$Iso=="M20"),grepl("Iso|Exp|MID",colnames(data3.temp))]
+  #   # 
+  #   # test.matrix[grepl("^(MID|Exp)\\d+", colnames(test.matrix))] <- format(test.matrix[grepl("^(MID|Exp)\\d+", colnames(test.matrix))],scientific=F)
+  #   # 
+  #   # for (mid in mids) {
+  #   #   mid.uncorr = paste0(mid,".uncorr")
+  #   #   exp = gsub("MID","Exp",mid)
+  #   #   exp.uncorr = paste0(exp,".uncorr")
+  #   #   test.matrix[(test.matrix$Iso!="M0" & test.matrix[,mid]!=0 & test.matrix[,mid.uncorr]==0 & is.na(test.matrix[,exp.uncorr]) &
+  #   #                   (test.matrix[,mid] < isotope_correction_remove_small_values_threshold)),
+  #   #                c(exp, mid)] <- c(NA, NA)
+  #   # }
+  #   # test.matrix
+  #   # 
+  #   # (test.matrix$Iso!="M0" & test.matrix[,mid]!=0 & test.matrix[,mid.uncorr]==0 & is.na(test.matrix[,exp.uncorr]) &
+  #   #     (test.matrix[,mid] < isotope_correction_remove_small_values_threshold))
+  #   # 
+  #   # class(test.matrix[,mid])
+  #   
+  #   for (mid in mids) {
+  #     mid.uncorr = paste0(mid,".uncorr")
+  #     exp.uncorr = gsub("MID","Exp",mid.uncorr)
+  #     data3.temp[,exp.uncorr] <- NULL
+  #     data3.temp[,mid.uncorr] <- NULL
+  #   }
+  # 
+  #   data3_corr_no_removals <- data3   # data3 <- data3_corr_no_removals 
+  #   data3 <- data3.temp
+  # }
+  
+  # tfdata2 <- data2
+  # tfdata3 <- data3
+  # save(tfdata2, file = "tracefinder_data2.rda")
+  # save(tfdata3, file = "tracefinder_data3.rda")
+  #  load("tracefinder_data2.rda")
+  #  load("tracefinder_data3.rda")
   
   } else if (isotope_correction_flag == "IsoCorrectoR" || isotope_correction_flag == "force_uncorrected") {
     #uncorrected & correction using correct_iso / IsoCorrectoR
