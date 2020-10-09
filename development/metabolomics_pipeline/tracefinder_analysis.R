@@ -41,7 +41,7 @@ if (tracer_type == "full" || tracer_type == "partial") {
     isotope_correction_remove_small_values_flag = TRUE
     # threshold below is a MID value, meaning it is a percentage
     # typical value 0.1, typical range 0.01 - 1 
-    isotope_correction_remove_small_values_threshold = 1 
+    isotope_correction_remove_small_values_threshold = 0.1 
     if (isotope_correction_remove_small_values_threshold > 1) {stop("please double check that you want to use a large threshold")}
 
   } else if (0) {
@@ -54,6 +54,7 @@ if (tracer_type == "full" || tracer_type == "partial") {
     stop("need to set isotope_correction_flag")
   }
 }
+
 
 ###### process input data ######
 
