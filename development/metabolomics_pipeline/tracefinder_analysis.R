@@ -23,7 +23,7 @@ source('/Users/tgraeber/Dropbox/glab/workspace/github/glab.library/development/m
 
 #mac paths
 data_dir <- "/Users/tgraeber/Dropbox/glab/Metabolomics Center/Metabolomics Pipeline Scripts and Notes/workspace/Projects/Cells/Nakamura JN-08202020_7-12_Gln_Vanq"
-output_dir <- "/Users/tgraeber/Dropbox/glab/Metabolomics Center/Metabolomics Pipeline Scripts and Notes/workspace/Projects/Cells/Nakamura JN-08202020_7-12_Gln_Vanq/test3"
+output_dir <- "/Users/tgraeber/Dropbox/glab/Metabolomics Center/Metabolomics Pipeline Scripts and Notes/workspace/Projects/Cells/Nakamura JN-08202020_7-12_Gln_Vanq/test3/default"
 
 #set tracer_type to: "full", "partial", or "none"
 tracer_type <- "full"
@@ -38,7 +38,7 @@ if (tracer_type == "full" || tracer_type == "partial") {
     
     #if true, remove non-M0 MID values going from zero to non-zero unless the increase is above the indicated threshold
     #in part done because values like 10e-20 will show up in R ggplot barplots 
-    isotope_correction_remove_small_values_flag = TRUE
+    isotope_correction_remove_small_values_flag = FALSE
     # threshold below is a MID value, meaning it is a percentage
     # typical value 0.1, typical range 0.01 - 1 
     isotope_correction_remove_small_values_threshold = 0.1 
