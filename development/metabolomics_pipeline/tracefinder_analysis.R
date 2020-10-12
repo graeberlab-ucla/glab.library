@@ -34,7 +34,7 @@ ifelse (grepl("ICS", data_dir), ICS <- TRUE, ICS <- FALSE)
 if (tracer_type == "full" || tracer_type == "partial") {
   #turn on one of these options
   if (1) {
-    isotope_correction_flag = "default" #for using the 1996 Fernandez et al. JofMS method (first method used by the UCLA Metabolomics Center)
+    isotope_correction_flag = "default" #for using the 2010 Moseley et al. BMC Bioinformatics method PMID:20236542 (first method used by the UCLA Metabolomics Center)
     
     #if true, remove non-M0 MID values going from zero to non-zero unless the increase is above the indicated threshold
     #in part done because values like 10e-20 will show up in R ggplot barplots 
