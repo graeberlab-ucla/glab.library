@@ -1,4 +1,4 @@
-Sys.setenv(JAVA_HOME = "C:\\Program Files\\Java\\jdk-11.0.8\\")
+#Sys.setenv(JAVA_HOME = "C:\\Program Files\\Java\\jdk-11.0.8\\")
 library(MetabFUN)
 library(tidyr)
 library(readxl)
@@ -10,8 +10,10 @@ library(pheatmap)
 ####
 library(ggplot2)
 
-data_dir <- "N:/TraceFinderData/4.0/Projects/Medium/Goldstein Lab/JG-07222020_7-7_medium_Vanq"
-output_dir <- "N:/TraceFinderData/4.0/Projects/Medium/Goldstein Lab/JG-07222020_7-7_medium_Vanq/test2"
+#data_dir <- "N:/TraceFinderData/4.0/Projects/Medium/Goldstein Lab/JG-07222020_7-7_medium_Vanq"
+#output_dir <- "N:/TraceFinderData/4.0/Projects/Medium/Goldstein Lab/JG-07222020_7-7_medium_Vanq/test2"
+data_dir <- "/Users/tgraeber/Dropbox/glab/Metabolomics Center/Metabolomics Pipeline Scripts and Notes/footprinting troubleshooting/more than one unspent control set/2020.07.07_Jenna-Godstein_16D Enza_metabolic footprinting"
+output_dir <- "/Users/tgraeber/Dropbox/glab/Metabolomics Center/Metabolomics Pipeline Scripts and Notes/footprinting troubleshooting/more than one unspent control set/2020.07.07_Jenna-Godstein_16D Enza_metabolic footprinting/test2"
 ## This is the only place anno_dir is in the script
 ###anno_dir <- "C:/Users/djtan/Documents/metabolobics scripts"
 unlabelled <- TRUE
@@ -23,14 +25,21 @@ colors1<-c("turquoise","red","plum4","steelblue1","red4","springgreen2","slatebl
 ####data(abbrev_vanq)
 #### Changed abbrev from one in package to the one in google drive
 #### abbrev_vanq vs abbrev?
-Abbrev <- read_excel("C:/Users/FTsang/Downloads/Abbrev_NEW2 (1).xlsx")
+#Abbrev <- read_excel("C:/Users/FTsang/Downloads/Abbrev_NEW2 (1).xlsx")
+Abbrev <- read_excel("/Users/tgraeber/Dropbox/glab/Metabolomics Center/Metabolomics Pipeline Scripts and Notes/workspace/Abbrev_NEW2.xlsx")
 Abbrev <- Abbrev[-c(248,249),]
 
 setwd(data_dir)
 Title <- paste0('Footprint-',gsub('.xls[x]?','', list.files(pattern='.xls[x]?')))
-Title<-Title[2]
+
+#ethow
+#Title<-Title[2] #this approach should be improved
+Title<-Title[1] #this approach should be improved
+
+
 # enter cell names and cell numbers
-info <- read_excel(list.files()[grep('.xls[x]?',list.files())][2])
+#info <- read_excel(list.files()[grep('.xls[x]?',list.files())][2]) #this approach should be improved
+info <- read_excel(list.files()[grep('.xls[x]?',list.files())][1]) #this approach should be improved
 info$Samples <- 1:nrow(info)
 info$Condition <- gsub("^\\s+|\\s+$", "", info$Condition)        #remove leading or trailing white space
 info$Condition <- gsub('/', '-', info$Condition)
@@ -369,7 +378,11 @@ data2_output$rep <- NULL
 data2_output <- data2_output %>% spread(Sample, Value)
 data2_output$Rt <- NULL
 ###data2_output <- data2_output[,c('Name', 'Used_ID', 'KEGG.ID', 'Pathway', 'Nr.C', 'Iso',info$Sample.Name)]
-data2_output <- data2_output[,c('Name', 'Used_ID', 'KEGG.ID', 'Vanq.Method', 'Nr.C', 'Iso',info$Sample.Name)]
+#data2_output <- data2_output[,c('Name', 'Used_ID', 'KEGG.ID', 'Vanq.Method', 'Nr.C', 'Iso',info$Sample.Name)]
+data2_output <- data2_output[,c('Name', 'Used_ID', 'KEGG.ID', 'Pathway', 'Nr.C', 'Iso',info$Sample.Name)]
+
+
+
 colnames(data2_output) <- c(colnames(data2_output)[1:6], info$Sample)
 data2_output <- data2_output[order(data2_output$Name),]
 num_samples <- sum(!grepl('QC',info$Sample))
@@ -587,8 +600,20 @@ amounts2 <- amounts %>%
   dplyr::select_if(~sum(!is.na(.))>0) %>%
   ungroup()
 
-####fresh <- info[grep('unspent|[Bb]lank|[Ff]resh|[Cc]ontrol|[Mm]edium|[Mm]edia', info$Condition),]$Samples  #find blank medium samples
-fresh <- info[grep('[Uu]nspent|[Bb]lank|[Ff]resh|[Cc]ontrol', info$Condition),]$Samples  #find blank medium samples
+
+
+
+# ethow
+
+fresh_regex = '[Uu]nspent|[Bb]lank|[Ff]resh|[Cc]ontrol'
+#fresh_regex = '[Uu]nspent|[Bb]lank|[Ff]resh|[Cc]ontrol|[Mm]edium|[Mm]edia'
+if (1) {
+  #special code for data set '2020.07.07_Jenna-Godstein_16D Enza_metabolic footprinting'
+  fresh_regex = '[Uu]nspent|[Bb]lank|[Ff]resh|[Cc]ontrol|Media complete|Media -SG'
+}
+
+fresh <- info[grep(fresh_regex, info$Condition),]$Samples  #find blank medium samples
+fresh2 <- info[grep(fresh_regex, info$Condition),]
 
 if (length(which(sapply(amounts2[,3:length(amounts2)], sum, na.rm=T)==0)) > 0){
   amounts2 <- amounts2[-(which(sapply(amounts2[,3:length(amounts2)], sum, na.rm=T)==0)+2)]   #remove columns with only NAs
@@ -596,22 +621,71 @@ if (length(which(sapply(amounts2[,3:length(amounts2)], sum, na.rm=T)==0)) > 0){
 
 #info$Medium[1:9] <- "A"
 
+# the structure of the experimnental design and of the sample info file is expected to be such that 
+# the unspent media controls that should be subtracted in the footprinting plots come in sets of 3 replicates, 
+# and that the first one will be used for the samples with A in the Medium column, second B, etc.
+# samples that do not need a subtraction, can be assigned an additional letter, and put into the unspent dataframne
+# (if other designs are used, this code will need adjustment)
 for (i in seq_len(length(unique(na.omit(info$Medium))))) {                                 #create variable with average amount in blank medium
-  print(i)
+  #print(i)
   assign(LETTERS[i],
          apply(amounts2[,fresh[c(i*3-2, i*3-1, i*3)]+2], 1, mean, na.rm=T))
+  #confirm that the Medium coilumn in the sample info file is structured correctly (see above)
+  test <- fresh2[grep(LETTERS[i], fresh2$Medium),]$Medium
+  if (length(test) !=3) {
+    stop("need to evolve the code to deal with unspent media that is not in replicates of 3")
+  }
+  if (length(unique(test)) != 1 | test[1] != LETTERS[i]) {
+    stop("the Medium column in the sample info file does not have the expected structure")
+  }
 }
+
 #change NAs in 'fresh' variables to 0
 ####samples <- info[-grep('unspent|[Bb]lank|[Ff]resh|[Cc]ontrol|[Mm]edium|[Mm]edia', info$Condition),]
-samples <- info[-grep('[Uu]nspent|[Bb]lank|[Ff]resh|[Cc]ontrol', info$Condition),]
+samples <- info[-grep(fresh_regex, info$Condition),]
 amounts3 <- amounts2
 
+
+
+
+
+if (0) { #interpreting the code
+  i=1
+  i*3-2; i*3-1; i*3
+  fresh
+  fresh[c(i*3-2, i*3-1, i*3)]+2
+  grep(LETTERS[i], info$Medium)
+  grep(LETTERS[i], samples$Medium)
+  i=2
+  i*3-2; i*3-1; i*3
+  fresh
+  fresh[c(i*3-2, i*3-1, i*3)]+2
+  grep(LETTERS[i], samples$Medium)
+  i=3
+  i*3-2; i*3-1; i*3
+  fresh
+  fresh[c(i*3-2, i*3-1, i*3)]+2
+  grep(LETTERS[i], samples$Medium)
+  
+  fresh
+  
+  barplot(log(get(LETTERS[1])+1))
+  barplot(log(get(LETTERS[2])+1))
+  barplot(log(get(LETTERS[3])+1))
+  barplot(log(get(LETTERS[1])+1), log(get(LETTERS[2])+1), log(get(LETTERS[3]))+1)
+  
+}
+
+
+
 for (i in seq_len(length(unique(samples$Medium)))){
+  print(i)
   spent <- samples[grep(LETTERS[i], samples$Medium),]$Samples + 2
   amounts3[,spent] <- amounts3[,spent]-get(LETTERS[i])
 }
 amounts3 <- amounts3[,-(fresh+2)]
 amounts3[is.na(amounts3)] <- 0
+
 
 condition = as.character(samples$Sample.Name)
 ### If Cell.Number is blank, run the line below
