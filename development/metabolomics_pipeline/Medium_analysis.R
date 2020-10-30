@@ -1,3 +1,4 @@
+Sys.setenv(JAVA_HOME = "C:\\Program Files\\Java\\jdk-11.0.8\\")
 library(MetabFUN)
 library(tidyr)
 library(readxl)
@@ -6,23 +7,30 @@ library(dplyr)
 library(MetabR)
 library(xlsx)
 library(pheatmap)
+####
+library(ggplot2)
 
-data_dir <- "W:/4.0/Projects/Alm-Öhi/Medium/Yang Lab/KR-03102020_2-14_medium_Vanq"
-output_dir <- "W:/4.0/Projects/Alm-Öhi/Medium/Yang Lab/KR-03102020_2-14_medium_Vanq/test"
-anno_dir <- "C:/Users/djtan/Documents/metabolobics scripts"
+data_dir <- "N:/TraceFinderData/4.0/Projects/Medium/Goldstein Lab/JG-07222020_7-7_medium_Vanq"
+output_dir <- "N:/TraceFinderData/4.0/Projects/Medium/Goldstein Lab/JG-07222020_7-7_medium_Vanq/test2"
+## This is the only place anno_dir is in the script
+###anno_dir <- "C:/Users/djtan/Documents/metabolobics scripts"
 unlabelled <- TRUE
 tracer_type<-"none"
 
 colors1<-c("turquoise","red","plum4","steelblue1","red4","springgreen2","slateblue2","sienna1","darkgreen","lightpink1","navy","olivedrab1",
            "orangered","darkslateblue","lightseagreen","magenta2","royalblue","yellowgreen","lightsalmon","cyan","maroon1","indianred3","mediumseagreen",
            "slateblue3","hotpink","lemonchiffon1","orangered4","lightcoral","tomato")
-data(abbrev_vanq)
+####data(abbrev_vanq)
+#### Changed abbrev from one in package to the one in google drive
+#### abbrev_vanq vs abbrev?
+Abbrev <- read_excel("C:/Users/FTsang/Downloads/Abbrev_NEW2 (1).xlsx")
+Abbrev <- Abbrev[-c(248,249),]
 
 setwd(data_dir)
 Title <- paste0('Footprint-',gsub('.xls[x]?','', list.files(pattern='.xls[x]?')))
-Title<-Title[1]
+Title<-Title[2]
 # enter cell names and cell numbers
-info <- read_excel(list.files()[grep('.xls[x]?',list.files())][1])
+info <- read_excel(list.files()[grep('.xls[x]?',list.files())][2])
 info$Samples <- 1:nrow(info)
 info$Condition <- gsub("^\\s+|\\s+$", "", info$Condition)        #remove leading or trailing white space
 info$Condition <- gsub('/', '-', info$Condition)
@@ -72,11 +80,14 @@ data <- data %>% select(-grep('QC_|QC.', colnames(data)), grep('QC_|QC.', colnam
 
 data_output <- left_join(x = data, y = Abbrev, by = "Used_ID")
 data_output <- data_output %>% rename(Name = Abb)
-data_output <- data_output %>% select(Name, Used_ID, KEGG.ID, Pathway, Nr.C, Iso, info$Sample)
+#data_output <- data_output %>% select(Name, Used_ID, KEGG.ID, Pathway, Nr.C, Iso, info$Sample)
+data_output <- data_output %>% select(Name, Used_ID, KEGG.ID, Vanq.Method, Nr.C, Iso, info$Sample)
 
 if(tracer_type == "none")
   data_output <- subset(data_output, Iso == "M0" | Iso =="M1")
 ####################################
+### Took out rows with NAs for Nr.C
+data_output <- data_output[!is.na(data_output$Nr.C),]
 isotopes <- rep(NA, max(data_output$Nr.C))
 for (i in 1:(length(isotopes)+1))
   isotopes[i] <- paste0("M", as.character(i-1))
@@ -133,6 +144,8 @@ data_with_blanks <- data_with_blanks %>% select(-grep('QC_|QC.', colnames(data_w
 
 
 std <- make_istd(data, remove = FALSE)$Std
+### Remove Norvaline from std plots
+std <- std[std$Used_ID != "Norvaline",]
 setwd(output_dir)
 info_ordered <- info[order(info$Run.Order),]
 info_ordered_with_blanks<-info_with_blanks[order(info_with_blanks$Run.Order),]
@@ -151,7 +164,8 @@ info_ordered <- info[order(info$Run.Order),]
 plot_istd(Std = std, info = info_ordered, title = paste0("QC-ISTDs-", Title, ".pdf"),pdf_width = 20)
 
 #removing standards
-data <- filter(data, !(grepl('Std', data$Iso)))
+###data <- filter(data, !(grepl('Std', data$Iso)))
+data <- filter(data, !(grepl('Std', data$Iso) & data$Used_ID != "Norvaline"))
 data$Used_ID <- as.character(data$Used_ID)
 data_with_blanks$Used_ID <- as.character(data_with_blanks$Used_ID)
 
@@ -241,7 +255,8 @@ dev.off()
 
 #Normalizing Norvaline 
 if (length(Norv)==0){
-  Norv <- rep(1,nrow(samples))
+  Norv <- rep(1, length(samples))
+  #Norv <- rep(1,nrow(samples))
   print("No norvaline")
 }
 
@@ -249,11 +264,13 @@ norm <- data
 norm_with_blanks<-data_with_blanks
 
 if (length(Norv)!=0){
-norm <- norm[!norm$Name=="Norvaline",]     #remove Norvaline from list
+  ###norm <- norm[!norm$Name=="Norvaline",]     #remove Norvaline from list
+  norm <- norm[!norm$Used_ID=="Norvaline",]
 }
 
 if (length(Norv)!=0){
-  norm_with_blanks <- norm_with_blanks[!norm_with_blanks$Name=="Norvaline",]     #remove Norvaline from list
+  ###norm_with_blanks <- norm_with_blanks[!norm_with_blanks$Name=="Norvaline",]     #remove Norvaline from list
+  norm_with_blanks <- norm_with_blanks[!norm_with_blanks$Used_ID=="Norvaline",]
 }
 
 if(length(unique(info$Cell.Number))==1)
@@ -262,7 +279,9 @@ if(length(unique(info$Cell.Number))==1)
 if(length(unique(info_with_blanks$Cell.Number[1:length(new_colnames)]))==1)
 {info_with_blanks$Cell.Number=1}
 
-to_normalize <- !(all(is.na(info$Cell.Number)))
+to_normalize <- FALSE
+info$Cell.Number <- 1
+###to_normalize <- !(all(is.na(info$Cell.Number)))
 if(to_normalize)
   if(length(unique(info$Cell.Number)) == 1)
     to_normalize <- FALSE
@@ -276,7 +295,9 @@ if(to_normalize)
 if(all(is.na(info$Cell.Number)))
   info$Cell.Number <- 1
 #####
-to_normalize_with_blanks <- !(all(is.na(info_with_blanks$Cell.Number)))
+###to_normalize_with_blanks <- !(all(is.na(info_with_blanks$Cell.Number)))
+to_normalize_with_blanks <- FALSE
+info_with_blanks$Cell.Number <- 1
 if(to_normalize_with_blanks)
   if(length(unique(info_with_blanks$Cell.Number)) == 1)
     to_normalize_with_blanks <- FALSE
@@ -347,7 +368,8 @@ data2_output$Exp <- NULL
 data2_output$rep <- NULL
 data2_output <- data2_output %>% spread(Sample, Value)
 data2_output$Rt <- NULL
-data2_output <- data2_output[,c('Name', 'Used_ID', 'KEGG.ID', 'Pathway', 'Nr.C', 'Iso',info$Sample.Name)]
+###data2_output <- data2_output[,c('Name', 'Used_ID', 'KEGG.ID', 'Pathway', 'Nr.C', 'Iso',info$Sample.Name)]
+data2_output <- data2_output[,c('Name', 'Used_ID', 'KEGG.ID', 'Vanq.Method', 'Nr.C', 'Iso',info$Sample.Name)]
 colnames(data2_output) <- c(colnames(data2_output)[1:6], info$Sample)
 data2_output <- data2_output[order(data2_output$Name),]
 num_samples <- sum(!grepl('QC',info$Sample))
@@ -435,12 +457,43 @@ filtered_metabolites<-unique(amounts$Name)
 
 amounts_with_blanks<-amounts_with_blanks[amounts_with_blanks$Name %in% filtered_metabolites,]
 
+
 data8 <- split(amounts, amounts[,1])
-ANOVA <- suppressWarnings(sapply(data8, function(x) anova(aov(x$Amount~x$Condition))$Pr[1]))
+
+data8_infinite <- vector("list", length = length(data8))
+data8_finite <- vector("list", length = length(data8))
+### Extract rows with NA or Inf Amount in loop
+for (i in 1:length(data8)) {
+  #not_finite <- data8[[1]][!is.finite(data8[[1]][,5]),]
+  non_finite <- data8[[i]][!is.finite(rowSums(data8[[i]][,5])),]
+  finite <- data8[[i]][is.finite(rowSums(data8[[i]][,5])),]
+  #df <- df[is.finite(rowSums(df)),]
+  data8_infinite[[i]] <- non_finite
+  data8_finite[[i]] <- finite
+}
+
+### Run ANOvA on the rest
+ANOVA <- suppressWarnings(sapply(data8_finite, function(x) anova(aov(x$Amount~x$Condition))$Pr[1]))
+###ANOVA <- suppressWarnings(sapply(data8, function(x) anova(aov(x$Amount~x$Condition))$Pr[1]))
+### Add the subsetted rows back
 ANOVA <- rep(ANOVA, each=length(unique(info$Condition)))
 
 data8_with_blanks <- split(amounts_with_blanks, amounts_with_blanks[,1])
-ANOVA_with_blanks <- suppressWarnings(sapply(data8_with_blanks, function(x) anova(aov(x$Amount~x$Condition))$Pr[1]))
+
+data8_blanks_infinite <- vector("list", length = length(data8_with_blanks))
+data8_blanks_finite <- vector("list", length = length(data8_with_blanks))
+### Extract rows with NA or Inf Amount in loop
+for (i in 1:length(data8_with_blanks)) {
+  #not_finite <- data8[[1]][!is.finite(data8[[1]][,5]),]
+  non_finite <- data8_with_blanks[[i]][!is.finite(rowSums(data8_with_blanks[[i]][,5])),]
+  finite <- data8_with_blanks[[i]][is.finite(rowSums(data8_with_blanks[[i]][,5])),]
+  #df <- df[is.finite(rowSums(df)),]
+  data8_blanks_infinite[[i]] <- non_finite
+  data8_blanks_finite[[i]] <- finite
+}
+
+###ANOVA_with_blanks <- suppressWarnings(sapply(data8_with_blanks, function(x) anova(aov(x$Amount~x$Condition))$Pr[1]))
+ANOVA_with_blanks <- suppressWarnings(sapply(data8_blanks_finite, function(x) anova(aov(x$Amount~x$Condition))$Pr[1]))
 ANOVA_with_blanks <- rep(ANOVA_with_blanks, each=length(unique(info_with_blanks$Condition)))
 
 amounts <- amounts %>%
@@ -534,18 +587,23 @@ amounts2 <- amounts %>%
   dplyr::select_if(~sum(!is.na(.))>0) %>%
   ungroup()
 
-fresh <- info[grep('unspent|[Bb]lank|[Ff]resh|[Cc]ontrol|[Mm]edium|[Mm]edia', info$Condition),]$Samples  #find blank medium samples
+####fresh <- info[grep('unspent|[Bb]lank|[Ff]resh|[Cc]ontrol|[Mm]edium|[Mm]edia', info$Condition),]$Samples  #find blank medium samples
+fresh <- info[grep('[Uu]nspent|[Bb]lank|[Ff]resh|[Cc]ontrol', info$Condition),]$Samples  #find blank medium samples
 
 if (length(which(sapply(amounts2[,3:length(amounts2)], sum, na.rm=T)==0)) > 0){
   amounts2 <- amounts2[-(which(sapply(amounts2[,3:length(amounts2)], sum, na.rm=T)==0)+2)]   #remove columns with only NAs
 }  
 
-for (i in seq_len(length(unique(info$Medium)))) {                                 #create variable with average amount in blank medium
+#info$Medium[1:9] <- "A"
+
+for (i in seq_len(length(unique(na.omit(info$Medium))))) {                                 #create variable with average amount in blank medium
+  print(i)
   assign(LETTERS[i],
          apply(amounts2[,fresh[c(i*3-2, i*3-1, i*3)]+2], 1, mean, na.rm=T))
 }
 #change NAs in 'fresh' variables to 0
-samples <- info[-grep('unspent|[Bb]lank|[Ff]resh|[Cc]ontrol|[Mm]edium|[Mm]edia', info$Condition),]
+####samples <- info[-grep('unspent|[Bb]lank|[Ff]resh|[Cc]ontrol|[Mm]edium|[Mm]edia', info$Condition),]
+samples <- info[-grep('[Uu]nspent|[Bb]lank|[Ff]resh|[Cc]ontrol', info$Condition),]
 amounts3 <- amounts2
 
 for (i in seq_len(length(unique(samples$Medium)))){
@@ -556,8 +614,11 @@ amounts3 <- amounts3[,-(fresh+2)]
 amounts3[is.na(amounts3)] <- 0
 
 condition = as.character(samples$Sample.Name)
+### If Cell.Number is blank, run the line below
+samples$Cell.Number <- 1
 numbers=samples$Cell.Number
 Norv=Norv[-fresh]
+
 
 numbers<-as.numeric(numbers)
 for (i in 1: length(numbers)){
@@ -722,7 +783,8 @@ condition=samples$Sample.Name
 condition = as.character(samples$Sample.Name)
 samples$Condition=factor(samples$Condition, levels=unique(samples$Condition))
 numbers=samples$Cell.Number
-rm(colors)
+### Changed from colors to colors1
+rm(colors1)
 
 
 select <- dplyr::select
