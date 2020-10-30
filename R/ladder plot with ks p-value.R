@@ -1,16 +1,30 @@
-# for ladder plots 
-library(plotrix)
-#https://rdrr.io/cran/plotrix/man/ladderplot.html
-require(MASS)
+#' ladder plot with ks p-value
+#'
+#' @param z 
+#' @param title 
+#' @param comp 
+#' @param cex 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' 
 
-setwd('/Users/tgraeber/Dropbox/glab/collab f/Arjun Deb/covid model/Cov2 RNAseq data/')
+# setwd('/Users/tgraeber/Dropbox/glab/collab f/Arjun Deb/covid model/Cov2 RNAseq data/')
 
 
 ######### ladder plots ######
 # comp = "PC4"     comp = "PC1"     z = z_myo
 
+
 ladder.plot <- function(z,title,comp,cex=1.5) #cex character enhancement factor - scales the foint size
 {  
+  # for ladder plots 
+  require(plotrix)
+  #https://rdrr.io/cran/plotrix/man/ladderplot.html
+  require(MASS)
+  
   string = paste0(comp,".rank")
   string.reverse = paste0(comp,".rank.reverse")
   y <- as.data.frame(z[,colnames(z) == string]) # | colnames(z) == "PC4.rank")]) 
