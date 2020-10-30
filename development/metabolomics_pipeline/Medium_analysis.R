@@ -641,37 +641,6 @@ amounts3 <- amounts2
 
 
 
-
-
-if (0) { #interpreting the code
-  i=1
-  i*3-2; i*3-1; i*3
-  fresh
-  fresh[c(i*3-2, i*3-1, i*3)]+2
-  grep(LETTERS[i], info$Medium)
-  grep(LETTERS[i], samples$Medium)
-  i=2
-  i*3-2; i*3-1; i*3
-  fresh
-  fresh[c(i*3-2, i*3-1, i*3)]+2
-  grep(LETTERS[i], samples$Medium)
-  i=3
-  i*3-2; i*3-1; i*3
-  fresh
-  fresh[c(i*3-2, i*3-1, i*3)]+2
-  grep(LETTERS[i], samples$Medium)
-  
-  fresh
-  
-  barplot(log(get(LETTERS[1])+1))
-  barplot(log(get(LETTERS[2])+1))
-  barplot(log(get(LETTERS[3])+1))
-  barplot(log(get(LETTERS[1])+1), log(get(LETTERS[2])+1), log(get(LETTERS[3]))+1)
-  
-}
-
-
-
 for (i in seq_len(length(unique(samples$Medium)))){
   print(i)
   spent <- samples[grep(LETTERS[i], samples$Medium),]$Samples + 2
