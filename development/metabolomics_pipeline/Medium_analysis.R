@@ -10,10 +10,10 @@ library(pheatmap)
 ####
 library(ggplot2)
 
-#data_dir <- "N:/TraceFinderData/4.0/Projects/Medium/Goldstein Lab/JG-07222020_7-7_medium_Vanq"
-#output_dir <- "N:/TraceFinderData/4.0/Projects/Medium/Goldstein Lab/JG-07222020_7-7_medium_Vanq/test2"
-data_dir <- "/Users/tgraeber/Dropbox/glab/Metabolomics Center/Metabolomics Pipeline Scripts and Notes/footprinting troubleshooting/more than one unspent control set/2020.07.07_Jenna-Godstein_16D Enza_metabolic footprinting"
-output_dir <- "/Users/tgraeber/Dropbox/glab/Metabolomics Center/Metabolomics Pipeline Scripts and Notes/footprinting troubleshooting/more than one unspent control set/2020.07.07_Jenna-Godstein_16D Enza_metabolic footprinting/test2"
+data_dir <- "N:/TraceFinderData/4.0/Projects/Medium/Goldstein Lab/JG-07222020_7-7_medium_Vanq"
+output_dir <- "N:/TraceFinderData/4.0/Projects/Medium/Goldstein Lab/JG-07222020_7-7_medium_Vanq/test2"
+#data_dir <- "/Users/tgraeber/Dropbox/glab/Metabolomics Center/Metabolomics Pipeline Scripts and Notes/footprinting troubleshooting/more than one unspent control set/2020.07.07_Jenna-Godstein_16D Enza_metabolic footprinting"
+#output_dir <- "/Users/tgraeber/Dropbox/glab/Metabolomics Center/Metabolomics Pipeline Scripts and Notes/footprinting troubleshooting/more than one unspent control set/2020.07.07_Jenna-Godstein_16D Enza_metabolic footprinting/test2"
 ## This is the only place anno_dir is in the script
 ###anno_dir <- "C:/Users/djtan/Documents/metabolobics scripts"
 unlabelled <- TRUE
@@ -25,8 +25,8 @@ colors1<-c("turquoise","red","plum4","steelblue1","red4","springgreen2","slatebl
 ####data(abbrev_vanq)
 #### Changed abbrev from one in package to the one in google drive
 #### abbrev_vanq vs abbrev?
-#Abbrev <- read_excel("C:/Users/FTsang/Downloads/Abbrev_NEW2 (1).xlsx")
-Abbrev <- read_excel("/Users/tgraeber/Dropbox/glab/Metabolomics Center/Metabolomics Pipeline Scripts and Notes/workspace/Abbrev_NEW2.xlsx")
+Abbrev <- read_excel("C:/Users/FTsang/Downloads/Abbrev_NEW2 (1).xlsx")
+#Abbrev <- read_excel("/Users/tgraeber/Dropbox/glab/Metabolomics Center/Metabolomics Pipeline Scripts and Notes/workspace/Abbrev_NEW2.xlsx")
 Abbrev <- Abbrev[-c(248,249),]
 
 setwd(data_dir)
@@ -601,7 +601,7 @@ amounts2 <- amounts %>%
 
 fresh_regex = '[Uu]nspent|[Bb]lank|[Ff]resh|[Cc]ontrol'
 #fresh_regex = '[Uu]nspent|[Bb]lank|[Ff]resh|[Cc]ontrol|[Mm]edium|[Mm]edia'
-if (1) {
+if (0) {
   #special code for data set '2020.07.07_Jenna-Godstein_16D Enza_metabolic footprinting'
   fresh_regex = '[Uu]nspent|[Bb]lank|[Ff]resh|[Cc]ontrol|Media complete|Media -SG'
 }
