@@ -31,8 +31,6 @@ Abbrev <- Abbrev[-c(248,249),]
 
 setwd(data_dir)
 Title <- paste0('Footprint-',gsub('.xls[x]?','', list.files(pattern='.xls[x]?')))
-
-#ethow
 #Title<-Title[2] #this approach should be improved
 Title<-Title[1] #this approach should be improved
 
@@ -600,10 +598,6 @@ amounts2 <- amounts %>%
   dplyr::select_if(~sum(!is.na(.))>0) %>%
   ungroup()
 
-
-
-
-# ethow
 
 fresh_regex = '[Uu]nspent|[Bb]lank|[Ff]resh|[Cc]ontrol'
 #fresh_regex = '[Uu]nspent|[Bb]lank|[Ff]resh|[Cc]ontrol|[Mm]edium|[Mm]edia'
