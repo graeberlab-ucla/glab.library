@@ -3,7 +3,19 @@
 # Description: A script for calculating the approximate number of breakpoints, iCNA score, and  length of the genome based on segment sizes.
 #			   Normalization based on length of the genome is performed by default. If no genome length is provided then the per-sample estimate
 #			   of genome length is used. Input data must follow the format described here https://software.broadinstitute.org/software/igv/SEG
-
+#' Title calc.iCNA.breakpoints
+#'
+#' @param seg_filename 
+#' @param out_name 
+#' @param genome_size 
+#' @param normalize 
+#' @param write 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' 
 calc.iCNA.breakpoints <- function(seg_filename, out_name, genome_size = F, normalize = T, write = T){
 	seg_data <- read.table(filename, sep = "\t", stringsAsFactors = F, header = T)
 	# edit chromosome names if necessary
