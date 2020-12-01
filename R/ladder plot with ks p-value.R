@@ -1,39 +1,47 @@
 #' ladder plot with ks p-value
 #'
-#' @param z 
-#' @param title 
-#' @param comp 
-#' @param cex 
+#' @param z dataframe with list of genes (or similar) and metrics that can be used to rank the genes, 
+#' and indication of the geneset membership based on the gene color (column with colname="color"; 
+#' any color = member, "trnasparent" = non-member)
+#' @param title title for the plot, typically the name/description of the gene set used for the 
+#' enrichment analysis
+#' @param metric parameter indicating the metric (column name) in dataframe z to be used to rank genes
+#' @param cex character enhancement factor - scales the foint size
 #'
 #' @return
 #' @export
 #'
-#' @examples
+#' @examples provided below the functions, at the end of the file
 #' 
 
 # setwd('/Users/tgraeber/Dropbox/glab/collab f/Arjun Deb/covid model/Cov2 RNAseq data/')
 
 
 ######### ladder plots ######
-# comp = "PC4"     comp = "PC1"     z = z_myo
+# metric = "PC4"     metric = "PC1"     z = z_myo
 
 
-ladder.plot <- function(z,title,comp,cex=1.5) #cex character enhancement factor - scales the foint size
+ladder.plot <- function(z,title,metric,cex=1.5) #cex character enhancement factor - scales the font size
 {  
   # for ladder plots 
   require(plotrix)
   #https://rdrr.io/cran/plotrix/man/ladderplot.html
   require(MASS)
+  require(latexpdf)
   
-  string = paste0(comp,".rank")
-  string.reverse = paste0(comp,".rank.reverse")
+  string = paste0(metric,".rank")
+  string.reverse = paste0(metric,".rank.reverse")
+  
+  z[string] = rank(z[metric])
+  z[string.reverse] = rank(-z[metric])
+  
   y <- as.data.frame(z[,colnames(z) == string]) # | colnames(z) == "PC4.rank")]) 
   colnames(y) <- "temp1"
   y$temp2 = y$temp1
   colnames(y) <- c(string, string)
   
   y2 <- as.data.frame(z[,(colnames(z) == string.reverse | colnames(z) == "gene" | colnames(z) == "color")]) 
-  y2 <- y2[y2$color == ladder_color,1:2]
+  y2 <- y2[y2$color == ladder_color,c(1,3)]
   #y2 <- y2[order(y2$PC1.rank.reverse),]
   y2 <- y2[order(y2[string.reverse]),]
   
@@ -42,8 +50,8 @@ ladder.plot <- function(z,title,comp,cex=1.5) #cex character enhancement factor 
   
   title_file <- sub("^ +","",title)
   title_file = gsub(" ","_",title_file)
-  title_file = paste0(title_file,".",comp)
-  title2 = paste0(title,".",comp)
+  title_file = paste0(title_file,".",metric)
+  title2 = paste0(title,".",metric)
   colnames(y) = c("", "")
   #, "PC4.2.rank"] # ladder data
   col = z[,"color"] # coloring key
@@ -310,8 +318,8 @@ if (0) {
 
   z <- pca_rot_4tissues_plus
   z <- z[!is.na(z$PC4),]
-  z$PC4.rank = rank(z$PC4)
-  z$PC4.rank.reverse = rank(-z$PC4)
+  #z$PC4.rank = rank(z$PC4) #now done in the function
+  #z$PC4.rank.reverse = rank(-z$PC4)
   
   title = "mitochondrially encoded"
   #title = "mitochondria"
