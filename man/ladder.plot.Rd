@@ -4,16 +4,19 @@
 \alias{ladder.plot}
 \title{ladder plot with ks p-value}
 \usage{
-ladder.plot(z, title, comp, cex = 1.5)
+ladder.plot(z, title, metric, cex = 1.5)
 }
 \arguments{
-\item{z}{}
+\item{z}{dataframe with list of genes (or similar) and metrics that can be used to rank the genes, 
+and indication of the geneset membership based on the gene color (column with colname="color"; 
+any color = member, "trnasparent" = non-member)}
 
-\item{title}{}
+\item{title}{title for the plot, typically the name/description of the gene set used for the 
+enrichment analysis}
 
-\item{comp}{}
+\item{metric}{parameter indicating the metric (column name) in dataframe z to be used to rank genes}
 
-\item{cex}{}
+\item{cex}{character enhancement factor - scales the foint size}
 }
 \value{
 
@@ -22,5 +25,6 @@ ladder.plot(z, title, comp, cex = 1.5)
 ladder plot with ks p-value
 }
 \examples{
+provided below the functions, at the end of the file
 
 }
