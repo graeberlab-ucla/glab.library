@@ -26,6 +26,7 @@ plot_pca_gradient_fill = function(file, info.name, info.type, info.color, title 
   ##process pca output and adds groupings
   require(ggplot2);require(ggpubr)
   require(vegan)
+  require(RColorBrewer)
   table <- read.table(file, header = TRUE)
   table$type = info.type[match(table$Score, info.name)]
   table$color = info.color[match(table$Score, info.name)]
