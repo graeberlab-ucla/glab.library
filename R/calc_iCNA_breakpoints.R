@@ -5,6 +5,7 @@
 #' Description: A script for calculating the approximate number of breakpoints, iCNA score, and  length of the genome based on segment sizes.
 #'			   Normalization based on length of the genome is performed by default. If no genome length is provided then the per-sample estimate
 #'			   of genome length is used. Input data must follow the format described here https://software.broadinstitute.org/software/igv/SEG
+#'                         reference: Graham, Minasyan et al.   https://www.embopress.org/doi/full/10.15252/msb.20167159 
 #'
 #' @param seg_filename 
 #' @param out_name 
