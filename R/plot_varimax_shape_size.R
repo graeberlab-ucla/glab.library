@@ -32,14 +32,14 @@
 # fliph = F
 # flipv = F
 
-file = "UVM cell line phenotypes_summary file_tg_PCA_prcomp_scores_VARIMAX.txt"
-info.name = human.info$type.name
-info.type = human.info$type.GNA
-info.shape = human.info$type.bap1.western
-info.size = human.info.phenotypes[[phenotype]]
-title = ""
-labels = F; ellipse = F; PCx = "V1"; PCy = "V2"
-
+# file = "UVM cell line phenotypes_summary file_tg_PCA_prcomp_scores_VARIMAX.txt"
+# info.name = human.info$type.name
+# info.type = human.info$type.GNA
+# info.shape = human.info$type.bap1.western
+# info.size = human.info.phenotypes[[phenotype]]
+# title = ""
+# labels = F; ellipse = F; PCx = "V1"; PCy = "V2"
+# 
 
 
 plot_varimax_shape_size = function(file, info.name, info.type, info.shape, info.size, title = "", labels = TRUE, PCx="PC1", PCy="PC2", ellipse = F, conf = 0.95, density=F,
