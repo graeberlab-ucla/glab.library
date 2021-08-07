@@ -1,5 +1,6 @@
 #' Title: Run regularized canonical correlation analysis
 #' edited from Estelle's https://github.com/estelleyao0530/Canonical_Correlation_Function
+#' based on http://mixomics.org/methods/rcca/
 #'
 #' Input:
 #' matrix A (rows as samples, cols as variables(drugs, genes))
@@ -14,7 +15,6 @@
 #' saves cca object from mixOmics package (optional)
 #' writes to file average variate scores and projected loadings of decomposed matrices that maximize the correlation between A and B
 #'
-#' based on http://mixomics.org/methods/rcca/
 #'
 #' @param df1 numeric dataframe/matrix A
 #' @param df2 numeric dataframe/matrix B
@@ -26,9 +26,8 @@
 #' @export
 #'
 #' @examples run_cca(ctrp, ceres, 9, T, "CCA_Ctrp_Ceres")
-
-require(mixOmics)
 run_cca <- function(df1, df2, ncomp, save_cca.obj = F, savename){
+  require(mixOmics)
   if(all(rownames(df1) != rownames(df2))){
     df1 = df1[order(rownames(df1)),]
     df2 = df2[order(rownames(df2)),]
