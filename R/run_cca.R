@@ -1,5 +1,5 @@
-#' Title: Run regularized canonical correlation analysis
-#' edited from Estelle's https://github.com/estelleyao0530/Canonical_Correlation_Function
+#' Run regularized canonical correlation analysis
+#' edited from Estelle https://github.com/estelleyao0530/Canonical_Correlation_Function
 #' based on http://mixomics.org/methods/rcca/
 #'
 #' Input:

@@ -2,8 +2,8 @@
 % Please edit documentation in R/run_cca.R
 \name{run_cca}
 \alias{run_cca}
-\title{Title: Run regularized canonical correlation analysis
-edited from Estelle's https://github.com/estelleyao0530/Canonical_Correlation_Function
+\title{Run regularized canonical correlation analysis
+edited from Estelle https://github.com/estelleyao0530/Canonical_Correlation_Function
 based on http://mixomics.org/methods/rcca/}
 \usage{
 run_cca(df1, df2, ncomp, save_cca.obj = F, savename)
