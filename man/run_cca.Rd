@@ -37,6 +37,3 @@ Output:
 saves cca object from mixOmics package (optional)
 writes to file average variate scores and projected loadings of decomposed matrices that maximize the correlation between A and B
 }
-\examples{
-run_cca(ctrp, ceres, 9, T, "CCA_Ctrp_Ceres")
-}

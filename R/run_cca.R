@@ -22,12 +22,15 @@
 #' @param save_cca.obj logical, default = F; option to save cca object
 #' @param savename string, name of the output file
 #'
+#' @importFrom utils write.table
+#' @importFrom mixOmics rcc
+#' @importFrom stats cor
+#'
 #' @return cca object
 #' @export
 #'
-#' @examples run_cca(ctrp, ceres, 9, T, "CCA_Ctrp_Ceres")
+
 run_cca <- function(df1, df2, ncomp, save_cca.obj = F, savename){
-  require(mixOmics)
   if(all(rownames(df1) != rownames(df2))){
     df1 = df1[order(rownames(df1)),]
     df2 = df2[order(rownames(df2)),]
