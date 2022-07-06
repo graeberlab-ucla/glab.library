@@ -94,11 +94,6 @@ require(rgl)
          }
       }
     })
-  #Run extra code to make into GIF 
-  #require(magick)
-  #play3d(spin3d(axis=c(0,0,1), rpm=3.5), duration=15) #rotates on the z axis. duration is in seconds.
-  #x<-movie3d(spin3d(axis=c(0,0,1), rpm=3.5) ,duration=15)
-  #image_write(x, "mygif.gif",format = "gif") #saves rotating 3d plot as a gif
 }
 
 
