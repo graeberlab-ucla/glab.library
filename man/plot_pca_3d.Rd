@@ -39,13 +39,13 @@ plot_pca_3d(
 \item{drawshape}{Boolean T/F. Finds the center 3d point of all points for each group and then connects the dots to form a 3d shape if one exists.}
 }
 \value{
-There is no output except for a 3d PCA plot that will open within RStudio and can be rotated using the computer mouse.
+
 }
 \description{
 Used to visualize principle component analysis in 3 dimensional space.
 }
 \examples{
-data(iris)
+#' data(iris)
 iris.pca <- prcomp(iris[,-c(5)], center = TRUE,scale. = TRUE)
 scores<-as.data.frame(iris.pca$x)
 scores<-cbind(rownames(iris),scores)

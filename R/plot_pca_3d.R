@@ -10,10 +10,11 @@
 #' @param grouplabels Boolean T/F. Do you want each grouping name to show on the plot? Default is FALSE.
 #' @param Title Title name that will display at the top of the plot.
 #' @param drawshape Boolean T/F. Finds the center 3d point of all points for each group and then connects the dots to form a 3d shape if one exists. 
-#' @return There is no output except for a 3d PCA plot that will open within RStudio and can be rotated using the computer mouse.
 #' @author Alexzandra Morris
+#' @return
+#' @export
 #' @examples
-#' data(iris)
+#' #' data(iris)
 #' iris.pca <- prcomp(iris[,-c(5)], center = TRUE,scale. = TRUE)
 #' scores<-as.data.frame(iris.pca$x)
 #' scores<-cbind(rownames(iris),scores)
