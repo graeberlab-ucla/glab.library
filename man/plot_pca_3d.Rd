@@ -38,9 +38,6 @@ plot_pca_3d(
 
 \item{drawshape}{Boolean T/F. Finds the center 3d point of all points for each group and then connects the dots to form a 3d shape if one exists.}
 }
-\value{
-
-}
 \description{
 Used to visualize principle component analysis in 3 dimensional space.
 }

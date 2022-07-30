@@ -26,11 +26,12 @@
 #' @examples
 #'
 
-require(ggplot2)
-require(ggpubr)
-require(ggrepel)
-
 plot_cca_loadings <- function(projx, projy, modulecolor, modulecolor2, number_plot, name){
+
+  require(ggplot2)
+  require(ggpubr)
+  require(ggrepel)
+
   circles <- data.frame(x0 = c(0,0,0),y0 = c(0,0,0),
                         r = c(0.2, 0.3, 0.4))
 
