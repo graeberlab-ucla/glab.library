@@ -1,4 +1,4 @@
-#' Plot PLS
+#' Plot PLS 
 #'
 #' Plots PLS from scores file (output of PLSR_from_file)
 #'
