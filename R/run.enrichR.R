@@ -8,7 +8,7 @@
 #' 
 
 run.enrichR <- function(topN){ #topN = top500
-  require(enrichR)
+  library(enrichR)
   # listEnrichrSites()
   setEnrichrSite("Enrichr") # Human genes
   websiteLive <- TRUE
