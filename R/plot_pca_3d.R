@@ -9,7 +9,7 @@
 #' @param indiv_labels Boolean T/F. Do you want each point to show its corresponding cell line name? Default is FALSE.
 #' @param grouplabels Boolean T/F. Do you want each grouping name to show on the plot? Default is FALSE.
 #' @param Title Title name that will display at the top of the plot.
-#' @param drawshape Boolean T/F. Finds the center 3d point of all points for each group and then connects the dots to form a 3d shape if one exists. 
+#' @param drawshape Boolean T/F. Finds the center 3d point of all points for each group and then connects the dots to form a 3d shape if one exists.
 #' @author Alexzandra Morris
 #' @return
 #' @export
@@ -26,10 +26,12 @@
 #' plot_pca_3d(scores=scores,info=info,info.Group=info$Group,grouplabels=TRUE,Title ="3D Plot-Iris Species",drawshape=T)
 #' plot_pca_3d(scores=scores,info=info,info.Group=info$Group,grouplabels=TRUE,Title ="3D Plot-Iris Species")
 #' plot_pca_3d(scores=scores,info=info,indiv_labels=TRUE,Title ="3D Plot-Iris Species")
-#' 
+#'
 plot_pca_3d <- function(scores,info,info.Group=NA,PCx="PC1", PCy="PC2",PCz="PC3",indiv_labels = FALSE, grouplabels= FALSE,Title ="3D PCA Plot",drawshape=F){
-  
-require(rgl)
+
+  if (!require(rgl)) install.packages('rgl')
+  library(rgl)
+
   scores<-scores[ order(match(scores$Score,info$cellline, )), ]
     if(nrow(scores)==nrow(info)){
     paste("number of rows in Scores matches number of rows in Info")
@@ -44,7 +46,7 @@ require(rgl)
   colors<-c("turquoise","red","plum4","steelblue1","red4","springgreen2","slateblue2","sienna1","darkgreen","lightpink1","navy","olivedrab1",
             "orangered","darkslateblue","lightseagreen","magenta2","royalblue","yellowgreen","lightsalmon","cyan","maroon1","indianred3","mediumseagreen",
             "slateblue3","hotpink","lemonchiffon1","orangered4","lightcoral","tomato")
-  
+
   info.Group<-as.factor(info.Group)
   scores$Group<-info.Group
   if(!all(is.na(info.Group))){
@@ -66,11 +68,11 @@ require(rgl)
   }else{
     scores$color=rep('black',length(scores$Score))
   }
-  p<-plot3d( 
-    x=scores[,PCx], y=scores[,PCy], z=scores[,PCz], 
-    col = scores$color, 
+  p<-plot3d(
+    x=scores[,PCx], y=scores[,PCy], z=scores[,PCz],
+    col = scores$color,
     type = 'p', #get spheres instead of points with type='s'
-    radius = 10,#adjust radius of spheres or points on plot 
+    radius = 10,#adjust radius of spheres or points on plot
     xlab=PCx, ylab=PCy, zlab=PCz,aspect = F)+
     if(drawshape==T & !all(is.na(info.Group))){ #draws 3d shape connecting average vertex of each group
     for(i in 1:nrow(groups_avg_df)){
