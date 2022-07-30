@@ -12,10 +12,13 @@
 #' @param drawshape Boolean TRUE/FALSE. Finds the center 3d point of all points for each group and then connects the dots to form a 3d shape if one exists.
 #' @author Alexzandra Morris
 #' 
-#' @importFrom rgl plot3d bgplot3d
-#' 
 #' @export
 #' @examples 
+#' 
+#' 
+#' importFrom rgl plot3d bgplot3d
+#' 
+#'
 #' #' data(iris)
 #' iris.pca <- prcomp(iris[,-c(5)], center = TRUE,scale. = TRUE)
 #' scores<-as.data.frame(iris.pca$x)
@@ -70,7 +73,7 @@ plot_pca_3d <- function(scores,info,info.Group=NA,PCx="PC1", PCy="PC2",PCz="PC3"
   }else{
     scores$color=rep('black',length(scores$Score))
   }
-  p<-plot3d(
+  p<-rgl::plot3d(
     x=scores[,PCx], y=scores[,PCy], z=scores[,PCz],
     col = scores$color,
     type = 'p', #get spheres instead of points with type='s'
@@ -84,7 +87,7 @@ plot_pca_3d <- function(scores,info,info.Group=NA,PCx="PC1", PCy="PC2",PCz="PC3"
         segments3d(x=c(target$x, subverticies$x[j]),y=c(target$y, subverticies$y[j]),z=c(target$z,subverticies$z[j]),color="dimgrey")
          }}}
     +
-    bgplot3d({
+    rgl::bgplot3d({
       plot.new()
       title3d(main = Title, line = 10)
       if(indiv_labels==TRUE){

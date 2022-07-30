@@ -42,6 +42,11 @@ plot_pca_3d(
 Used to visualize principle component analysis in 3 dimensional space.
 }
 \examples{
+
+
+importFrom rgl plot3d bgplot3d
+
+
 #' data(iris)
 iris.pca <- prcomp(iris[,-c(5)], center = TRUE,scale. = TRUE)
 scores<-as.data.frame(iris.pca$x)
