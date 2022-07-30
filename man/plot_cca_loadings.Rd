@@ -18,11 +18,7 @@ plot_cca_loadings(projx, projy, modulecolor, modulecolor2, number_plot, name)
 
 \item{number_plot}{int, numbers of component to plot}
 
-\item{name}{string, name of output files
-
-import ggplots
-import ggpubr
-import ggrepel}
+\item{name}{string, name of output files}
 }
 \description{
 Input

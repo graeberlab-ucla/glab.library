@@ -15,6 +15,9 @@
 #' @param title title of the plot
 #' @param fread default = F
 #'
+#' @import mixOmics
+#' @import ggplot2
+#'
 #' @export
 #'
 
