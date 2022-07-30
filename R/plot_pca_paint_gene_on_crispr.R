@@ -17,6 +17,11 @@
 #' 
 # @importFrom ggplot2 ggplot aes aes_string element_rect element_text geom_point geom_text labs margin theme theme_bw
 #' 
+#' @import ggplot2
+#' @import ggpubr
+#' @import vegan
+#' @import RColorBrewer
+#' 
 #' @export
 #' 
 

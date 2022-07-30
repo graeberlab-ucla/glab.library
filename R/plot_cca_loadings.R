@@ -21,6 +21,11 @@
 #' @param number_plot int, numbers of component to plot
 #' @param name string, name of output files
 #'
+# @importFrom ggplot2 coord_fixed geom_abline geom_circle geom_hline geom_point geom_vline ggplot ggsave labs scale_color_manual scale_x_continuous scale_y_continuous theme 
+#' import ggplots
+#' import ggpubr
+#' import ggrepel
+#'
 #' @export
 #'
 

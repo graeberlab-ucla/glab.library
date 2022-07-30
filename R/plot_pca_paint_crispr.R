@@ -17,6 +17,11 @@
 #' 
 # @importFrom ggplot2 ggplot aes aes_string element_rect element_text geom_point geom_text labs margin theme theme_bw
 #' 
+#' @import ggplot2
+#' @import ggpubr
+#' @import vegan
+#' @import RColorBrewer
+#' 
 #' @export
 #' 
 
@@ -46,7 +51,8 @@ plot_pca_paint_crispr = function(file, gene = "JUN", title = "", labels = TRUE, 
                                  fliph = F, flipv = F){  
     #Input: PCA scores file to be ploted
   ##process pca output and adds groupings
-  require(ggplot2);require(ggpubr)
+  require(ggplot2)
+  require(ggpubr)
   require(vegan)
   require(RColorBrewer)
   title = paste0(title," ",gene," (Crispr)")

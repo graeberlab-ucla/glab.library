@@ -11,6 +11,9 @@
 #' @param Title Title name that will display at the top of the plot.
 #' @param drawshape Boolean TRUE/FALSE. Finds the center 3d point of all points for each group and then connects the dots to form a 3d shape if one exists.
 #' @author Alexzandra Morris
+#' 
+#' @importFrom rgl plot3d bgplot3d
+#' 
 #' @export
 #' @examples 
 #' #' data(iris)
@@ -28,8 +31,8 @@
 #'
 plot_pca_3d <- function(scores,info,info.Group=NA,PCx="PC1", PCy="PC2",PCz="PC3",indiv_labels = FALSE, grouplabels= FALSE,Title ="3D PCA Plot",drawshape=FALSE){
 
-  if (!require(rgl)) install.packages('rgl')
-  library(rgl)
+  #if (!require(rgl)) install.packages('rgl')
+  #library(rgl)
 
   scores<-scores[ order(match(scores$Score,info$cellline, )), ]
     if(nrow(scores)==nrow(info)){
