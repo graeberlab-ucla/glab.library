@@ -4,7 +4,6 @@
 #' 
 #' @param topN list of the genes for the enrichmnet analysis
 #' @return enricher.df
-#' 
 #' @export
 #' 
 
