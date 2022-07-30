@@ -14,7 +14,7 @@ plot_pca_3d(
   indiv_labels = FALSE,
   grouplabels = FALSE,
   Title = "3D PCA Plot",
-  drawshape = F
+  drawshape = FALSE
 )
 }
 \arguments{
@@ -36,7 +36,7 @@ plot_pca_3d(
 
 \item{Title}{Title name that will display at the top of the plot.}
 
-\item{drawshape}{Boolean T/F. Finds the center 3d point of all points for each group and then connects the dots to form a 3d shape if one exists.}
+\item{drawshape}{Boolean TRUE/FALSE. Finds the center 3d point of all points for each group and then connects the dots to form a 3d shape if one exists.}
 }
 \description{
 Used to visualize principle component analysis in 3 dimensional space.
@@ -51,7 +51,7 @@ info<-cbind(rownames(iris),as.data.frame(iris[,'Species']))
 names(info)[1]<-'cellline'
 names(info)[2]<-'Group'
 
-plot_pca_3d(scores=scores,info=info,info.Group=info$Group,grouplabels=TRUE,Title ="3D Plot-Iris Species",drawshape=T)
+plot_pca_3d(scores=scores,info=info,info.Group=info$Group,grouplabels=TRUE,Title ="3D Plot-Iris Species",drawshape=TRUE)
 plot_pca_3d(scores=scores,info=info,info.Group=info$Group,grouplabels=TRUE,Title ="3D Plot-Iris Species")
 plot_pca_3d(scores=scores,info=info,indiv_labels=TRUE,Title ="3D Plot-Iris Species")
 

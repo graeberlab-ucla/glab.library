@@ -9,7 +9,7 @@
 #' @param indiv_labels Boolean T/F. Do you want each point to show its corresponding cell line name? Default is FALSE.
 #' @param grouplabels Boolean T/F. Do you want each grouping name to show on the plot? Default is FALSE.
 #' @param Title Title name that will display at the top of the plot.
-#' @param drawshape Boolean T/F. Finds the center 3d point of all points for each group and then connects the dots to form a 3d shape if one exists.
+#' @param drawshape Boolean TRUE/FALSE. Finds the center 3d point of all points for each group and then connects the dots to form a 3d shape if one exists.
 #' @author Alexzandra Morris
 #' @return
 #' @export
@@ -23,11 +23,11 @@
 #' names(info)[1]<-'cellline'
 #' names(info)[2]<-'Group'
 #'
-#' plot_pca_3d(scores=scores,info=info,info.Group=info$Group,grouplabels=TRUE,Title ="3D Plot-Iris Species",drawshape=T)
+#' plot_pca_3d(scores=scores,info=info,info.Group=info$Group,grouplabels=TRUE,Title ="3D Plot-Iris Species",drawshape=TRUE)
 #' plot_pca_3d(scores=scores,info=info,info.Group=info$Group,grouplabels=TRUE,Title ="3D Plot-Iris Species")
 #' plot_pca_3d(scores=scores,info=info,indiv_labels=TRUE,Title ="3D Plot-Iris Species")
 #'
-plot_pca_3d <- function(scores,info,info.Group=NA,PCx="PC1", PCy="PC2",PCz="PC3",indiv_labels = FALSE, grouplabels= FALSE,Title ="3D PCA Plot",drawshape=F){
+plot_pca_3d <- function(scores,info,info.Group=NA,PCx="PC1", PCy="PC2",PCz="PC3",indiv_labels = FALSE, grouplabels= FALSE,Title ="3D PCA Plot",drawshape=FALSE){
 
   if (!require(rgl)) install.packages('rgl')
   library(rgl)
@@ -74,7 +74,7 @@ plot_pca_3d <- function(scores,info,info.Group=NA,PCx="PC1", PCy="PC2",PCz="PC3"
     type = 'p', #get spheres instead of points with type='s'
     radius = 10,#adjust radius of spheres or points on plot
     xlab=PCx, ylab=PCy, zlab=PCz,aspect = F)+
-    if(drawshape==T & !all(is.na(info.Group))){ #draws 3d shape connecting average vertex of each group
+    if(drawshape==TRUE & !all(is.na(info.Group))){ #draws 3d shape connecting average vertex of each group
     for(i in 1:nrow(groups_avg_df)){
       target = groups_avg_df[i,]
       subverticies = groups_avg_df[-i,]
