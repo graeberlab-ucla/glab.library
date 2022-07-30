@@ -4,11 +4,14 @@
 #' 
 #' @param topN list of the genes for the enrichmnet analysis
 #' @return enricher.df
+#' 
+#' @importFrom enrichR enrichr
+#' 
 #' @export
 #' 
 
 run.enrichR <- function(topN){ #topN = top500
-  library(enrichR)
+  #library(enrichR)
   # listEnrichrSites()
   setEnrichrSite("Enrichr") # Human genes
   websiteLive <- TRUE
