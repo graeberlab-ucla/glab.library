@@ -23,8 +23,6 @@
 #'
 #' @export
 #'
-#' @examples
-#'
 
 plot_cca_loadings <- function(projx, projy, modulecolor, modulecolor2, number_plot, name){
 

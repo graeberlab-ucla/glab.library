@@ -11,9 +11,8 @@
 #' @param Title Title name that will display at the top of the plot.
 #' @param drawshape Boolean TRUE/FALSE. Finds the center 3d point of all points for each group and then connects the dots to form a 3d shape if one exists.
 #' @author Alexzandra Morris
-#' @return
 #' @export
-#' @examples
+#' @examples 
 #' #' data(iris)
 #' iris.pca <- prcomp(iris[,-c(5)], center = TRUE,scale. = TRUE)
 #' scores<-as.data.frame(iris.pca$x)

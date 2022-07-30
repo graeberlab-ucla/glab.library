@@ -9,6 +9,9 @@ run.enrichR(topN)
 \arguments{
 \item{topN}{list of the genes for the enrichmnet analysis}
 }
+\value{
+enricher.df
+}
 \description{
 runs a full enrichR analhysis
 }
