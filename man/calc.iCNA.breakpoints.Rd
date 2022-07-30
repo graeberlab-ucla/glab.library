@@ -45,7 +45,7 @@ Description: A script for calculating the approximate number of breakpoints, iCN
                         
 NOTES: 
 if input data follows the format described here https://software.broadinstitute.org/software/igv/SEG
-  sep = "\t"
+  sep = <regex tab character> #regex tab character not explicitly indicated because it causes a waring in roxygen2
   Segment_Mean is column 6 (seg_mean_index = 6)
 if using DepMap file CCLE_segment_cn.csv
   sep = ","
