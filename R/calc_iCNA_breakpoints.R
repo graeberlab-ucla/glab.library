@@ -21,12 +21,10 @@
 #' @param normalize 
 #' @param write 
 #' @param not_yet_log_transformed 
-#' @param sep see notes above
-#' @param seg_mean_index see notes above
+#' @param sep 
+#' @param seg_mean_index 
 #' @return out_df
 #' @export
-#'
-#' @examples examples under construction
 #'
 
 

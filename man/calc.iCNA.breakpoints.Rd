@@ -28,9 +28,9 @@ calc.iCNA.breakpoints(
 
 \item{not_yet_log_transformed}{}
 
-\item{sep}{see notes above}
+\item{sep}{}
 
-\item{seg_mean_index}{see notes above}
+\item{seg_mean_index}{}
 }
 \value{
 out_df
@@ -50,8 +50,4 @@ if input data follows the format described here https://software.broadinstitute.
 if using DepMap file CCLE_segment_cn.csv
   sep = ","
   Segment_Mean is column 5 (seg_mean_index = 5)
-}
-\examples{
-examples under construction
-
 }
