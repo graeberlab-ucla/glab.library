@@ -17,6 +17,25 @@
 #' 
 #' @export
 #' 
+
+# file = file.depmap.pca
+# info.name = samples.uvm2$DepMap_ID
+# info.type = samples.uvm2$stripped_cell_line_name
+#   
+# title = ""; labels = TRUE; PCx="PC1"; PCy="PC2"; ellipse = F; conf = 0.95; density=F
+# fliph = F; flipv = F
+# 
+
+# file = "/Users/tgraeber/Dropbox/glab/collab f/Kim Paraiso/RNAseq collections/SKCM cell lines M-series TOIL/MLine_rsem_genes_upper_norm_counts_UVM tumors_prcomp_rotated.txt"
+# info.name = human.info$sample.short3
+# info.type = human.info$BAP1.Altered
+
+# file = "m249_vsr_coding_no_kdd_lcpm_pca_prcomp_scores.txt"
+# info.name = m249_vsr_type$sampleX
+# info.type = m249_vsr_type$sampleX
+# PCx="PC1"; PCy="PC2"; labels = TRUE
+
+
 plot_pca = function(file, info.name, info.type, title = "", labels = TRUE, PCx="PC1", PCy="PC2", ellipse = F, conf = 0.95, density=F,
                     fliph = F, flipv = F){  
   #Input: PCA scores file to be ploted
@@ -31,26 +50,29 @@ plot_pca = function(file, info.name, info.type, title = "", labels = TRUE, PCx="
     PCy = gsub("PC","V", PCy)
     if (fliph==T){table[,PCx] = table[,PCx]*-1}
     if (flipv==T){table[,PCy] = table[,PCy]*-1}
+  } else {
+    if (fliph==T){table[,PCx] = table[,PCx]*-1}
+    if (flipv==T){table[,PCy] = table[,PCy]*-1}
   }
   
   sdev_name = paste0(gsub("scores.txt","",file),"sdev.txt")
   
   if ((sdev_name %in% list.files() )){
-  sdev = read.delim(paste0(gsub("scores.txt","",file),"sdev.txt"))
-  sdev$var = unlist(sdev^2)
-  sdev$pve = unlist(round(sdev$var/sum(sdev$var) * 100, digits = 2))
-  rownames(sdev) = paste0("PC",seq(1,nrow(sdev)))
-  
-  pcx.y <- ggplot(table, aes_string(x=PCx,y=PCy)) +geom_point(size = I(3), aes(color = factor(type))) +
-    theme(legend.position="right",plot.title=element_text(size=30),legend.text=element_text(size=22),
-          legend.title=element_text(size=20),axis.title=element_text(size=30),legend.background = element_rect(),
-          axis.text.x = element_text(margin = margin(b=-2)),axis.text.y = element_text(margin = margin(l=-14)))+
-    guides(color=guide_legend(title="Type"))+
-    labs(title = title, 
-         x = paste0(PCx," (", sdev$pve[match(PCx, rownames(sdev))], "%)"),
-         y = paste0(PCy," (", sdev$pve[match(PCy, rownames(sdev))], "%)"))+
-    theme_bw(base_size=18)+
-    if(labels==TRUE){geom_text(data = table, mapping = aes(label = Score), check_overlap = TRUE, size = 3)}
+    sdev = read.delim(paste0(gsub("scores.txt","",file),"sdev.txt"))
+    sdev$var = unlist(sdev^2)
+    sdev$pve = unlist(round(sdev$var/sum(sdev$var) * 100, digits = 2))
+    rownames(sdev) = paste0("PC",seq(1,nrow(sdev)))
+    
+    pcx.y <- ggplot(table, aes_string(x=PCx,y=PCy)) +geom_point(size = I(5), aes(color = factor(type))) +
+      theme(legend.position="right",plot.title=element_text(size=30),legend.text=element_text(size=22),
+            legend.title=element_text(size=20),axis.title=element_text(size=30),legend.background = element_rect(),
+            axis.text.x = element_text(margin = margin(b=-2)),axis.text.y = element_text(margin = margin(l=-14)))+
+      guides(color=guide_legend(title="Type"))+
+      labs(title = title, 
+           x = paste0(PCx," (", sdev$pve[match(PCx, rownames(sdev))], "%)"),
+           y = paste0(PCy," (", sdev$pve[match(PCy, rownames(sdev))], "%)"))+
+      theme_bw(base_size=18)+
+      if(labels==TRUE){geom_text(data = table, mapping = aes(label = Score), check_overlap = TRUE, size = 3)}
   }
   
   else if (grepl("scores_VARIMAX.txt", file)){
@@ -66,14 +88,14 @@ plot_pca = function(file, info.name, info.type, title = "", labels = TRUE, PCx="
       if(labels==TRUE){geom_text(data = table, mapping = aes(label = Score), check_overlap = TRUE, size = 3)}
   }
   else{
-  pcx.y <- ggplot(table, aes_string(x=PCx,y=PCy)) +geom_point(size = I(3), aes(color = factor(type))) +
-    theme(legend.position="right",plot.title=element_text(size=30),legend.text=element_text(size=22),
-          legend.title=element_text(size=20),axis.title=element_text(size=30),legend.background = element_rect(),
-          axis.text.x = element_text(margin = margin(b=-2)),axis.text.y = element_text(margin = margin(l=-14)))+
-    guides(color=guide_legend(title="Type"))+
-    labs(title = title)+
-    theme_bw(base_size=18)+
-    if(labels==TRUE){geom_text(data = table, mapping = aes(label = Score), check_overlap = TRUE, size = 3)}
+    pcx.y <- ggplot(table, aes_string(x=PCx,y=PCy)) +geom_point(size = I(3), aes(color = factor(type))) +
+      theme(legend.position="right",plot.title=element_text(size=30),legend.text=element_text(size=22),
+            legend.title=element_text(size=20),axis.title=element_text(size=30),legend.background = element_rect(),
+            axis.text.x = element_text(margin = margin(b=-2)),axis.text.y = element_text(margin = margin(l=-14)))+
+      guides(color=guide_legend(title="Type"))+
+      labs(title = title)+
+      theme_bw(base_size=18)+
+      if(labels==TRUE){geom_text(data = table, mapping = aes(label = Score), check_overlap = TRUE, size = 3)}
   }
   
   if(ellipse==TRUE){
@@ -115,19 +137,19 @@ plot_pca = function(file, info.name, info.type, title = "", labels = TRUE, PCx="
     print(pcx.y)
   }
   if(density==TRUE){
-
+    
     # Marginal density plot of x (top panel) and y (right panel)
     xplot <- ggdensity(table, PCx, fill = "type")+ clean_theme()
     yplot <- ggdensity(table, PCy, fill = "type")+ rotate()+ clean_theme()
-       # Arranging the plot
+    # Arranging the plot
     (ggarrange(xplot, NULL, pcx.y, yplot,
-              ncol = 2, nrow = 2,  align = "hv",
-              widths = c(2, 1), heights = c(1, 2),
-              common.legend = TRUE))
+               ncol = 2, nrow = 2,  align = "hv",
+               widths = c(2, 1), heights = c(1, 2),
+               common.legend = TRUE))
   }
   else{
     print(pcx.y)
   }
-
+  
   
 }  

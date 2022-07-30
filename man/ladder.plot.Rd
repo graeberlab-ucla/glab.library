@@ -4,7 +4,7 @@
 \alias{ladder.plot}
 \title{ladder plot with ks p-value}
 \usage{
-ladder.plot(z, title, metric, cex = 1.5)
+ladder.plot(z, title, metric, ladder_color, cex = 1.5)
 }
 \arguments{
 \item{z}{dataframe with list of genes (or similar) and metrics that can be used to rank the genes, 
@@ -19,7 +19,7 @@ enrichment analysis}
 \item{cex}{character enhancement factor - scales the foint size}
 }
 \value{
-
+RVAL
 }
 \description{
 ladder plot with ks p-value

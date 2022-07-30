@@ -1,4 +1,4 @@
-#' Plot PCA Paint Gene
+#' Plot PCA Paint Gene on Crispr
 #' 
 #' Plots PCA from scores file (output of PCA_from_file)
 #' 
@@ -37,22 +37,13 @@
 # title=""
 # setwd("/Users/tgraeber/Dropbox/glab/collab f/Kim Paraiso/PCA of UVM RNAseq/")
 
-# file = proj_name_fake
-# gene = "ASCL2"
-# PCx = "PC1"
-# PCy = "PC2"
-# labels=F
-# title=""
-# sDev_file_exists = F
-# setwd("/Users/tgraeber/Dropbox/glab/collab f/Kim Paraiso/PCA of UVM RNAseq/")
-
 # file = "melanoma.geneexp_prcomp_scores.txt"
 # file = "melanoma.geneexp_modnames_prcomp_scores.txt"
 
 #plot_pca_paint_gene = function(file, info.name, info.type, gene = "JUN", title = "", labels = TRUE, PCx="PC1", PCy="PC2", ellipse = F, conf = 0.95, density=F,
 #                               fliph = F, flipv = F){  
-plot_pca_paint_gene = function(file, gene = "JUN", title = "", labels = TRUE, PCx="PC1", PCy="PC2", ellipse = F, conf = 0.95, density=F,
-                                 fliph = F, flipv = F, sDev_file_exists = TRUE){  
+plot_pca_paint_gene_on_crispr = function(file, gene = "JUN", title = "", labels = TRUE, PCx="PC1", PCy="PC2", ellipse = F, conf = 0.95, density=F,
+                                 fliph = F, flipv = F){  
     #Input: PCA scores file to be ploted
   ##process pca output and adds groupings
   require(ggplot2);require(ggpubr)
@@ -64,6 +55,8 @@ plot_pca_paint_gene = function(file, gene = "JUN", title = "", labels = TRUE, PC
   #table$color = info.color[match(table$Score, info.name)]
   
   file.gexp = gsub("_prcomp_scores", "", file) 
+  file.gexp = gsub("crispr", "geneexp", file.gexp) 
+  
   table.loadings.t = read.delim(file.gexp, header = FALSE, sep="\t")
   table.loadings.t2 <- rbind(table.loadings.t[1,], table.loadings.t[table.loadings.t$V1 == gene,])
   table.loadings <- as.data.frame(t(table.loadings.t2))
@@ -76,8 +69,8 @@ plot_pca_paint_gene = function(file, gene = "JUN", title = "", labels = TRUE, PC
   if (flipv==T){table[,PCy] = table[,PCy]*-1}
   
   table$color <- as.numeric(as.character(table$color))
-  #class(table$color)
-  #class(table)
+  class(table$color)
+  class(table)
   min = min(table$color)
   max = max(table$color)
 #  min = min(as.numeric(as.matrix(table$color)))
@@ -86,16 +79,10 @@ plot_pca_paint_gene = function(file, gene = "JUN", title = "", labels = TRUE, PC
   colorpalette="RdYlBu"
   #colorpalette="RdBu"
   
-  if (sDev_file_exists) {
-    sdev = read.delim(paste0(gsub("scores.txt","",file),"sdev.txt"))
-    sdev$var = unlist(sdev^2)
-    sdev$pve = unlist(round(sdev$var/sum(sdev$var) * 100, digits = 2))
-    rownames(sdev) = paste0("PC",seq(1,nrow(sdev)))
-  } else {
-    sdev = as.data.frame(rep("-",10))
-    rownames(sdev) = paste0("PC",seq(1,nrow(sdev)))
-    colnames(sdev) = "pve"
-  }
+  sdev = read.delim(paste0(gsub("scores.txt","",file),"sdev.txt"))
+  sdev$var = unlist(sdev^2)
+  sdev$pve = unlist(round(sdev$var/sum(sdev$var) * 100, digits = 2))
+  rownames(sdev) = paste0("PC",seq(1,nrow(sdev)))
   
   #pcx.y <- ggplot(table, aes_string(x=PCx,y=PCy)) +geom_point(size = I(3), aes(color = factor(type))) +
   pcx.y <- ggplot(table, aes_string(x=PCx,y=PCy)) +geom_point(size = I(3), aes(fill = color), colour="black",pch=21) +

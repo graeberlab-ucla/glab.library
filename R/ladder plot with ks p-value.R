@@ -8,7 +8,7 @@
 #' @param metric parameter indicating the metric (column name) in dataframe z to be used to rank genes
 #' @param cex character enhancement factor - scales the foint size
 #'
-#' @return
+#' @return RVAL
 #' @export
 #'
 #' @examples provided below the functions, at the end of the file
@@ -19,7 +19,8 @@
 # z = crispr.tibble.ladder
 # title = description.hm
 # metric = "distance"
-# ladder_color = "dodgerblue"
+# #ladder_color = "dodgerblue"
+# ladder_color = "darkorange"
 # cex = 1.5
 
 
@@ -34,14 +35,12 @@
 
 
 
-if (0) {
-  z = crispr.tibble.ladder.dmhsr
-  #title = paste0("dm_vs_hsr(directional)",description.hm)
-  title = "test"
-  metric = "distance"
-  ladder_color = "darkorange"
-  cex = 1.5
-}
+# z = crispr.tibble.ladder.dmhsr
+# #title = paste0("dm_vs_hsr(directional)",description.hm)
+# title = "test"
+# metric = "distance"
+# ladder_color = "darkorange"
+# cex = 1.5
 
 
 
@@ -151,9 +150,20 @@ ladder.plot <- function(z,title,metric,ladder_color,cex=1.5) #cex character enha
   
   y_lastrow = as.character(dim(y)[1])
   #just keep the needed lines
-  y.abr <- y[col == ladder_color | rownames(y) == "1" | rownames(y) == y_lastrow,]
+  
+  #pre jul 4 2022 - perhaps needed changing to run on newer R version (4): 
+  #y.abr <- y[col == ladder_color | rownames(y) == "1" | rownames(y) == y_lastrow,]
+  test1 <- function(x) x==ladder_color
+  indx <- sapply(col, test1)
+  y.abr <- y[indx | rownames(y) == "1" | rownames(y) == y_lastrow,]
+  
   #col.abr <- as_tibble(col[col == ladder_color | rownames(y) == "1" | rownames(y) == y_lastrow,])
-  col.abr <- as_tibble(col[col == ladder_color | rownames(y) == "1" | rownames(y) == y_lastrow])
+  
+  #pre jul 4 2022 - perhaps needed changing to run on newer R version (4): 
+  #col.abr <- as_tibble(col[col == ladder_color | rownames(y) == "1" | rownames(y) == y_lastrow])
+  col.abr <- as_tibble(unlist(col)[indx | rownames(y) == "1" | rownames(y) == y_lastrow])
+  
+    
   colnames(col.abr) <- "color"
   #col.abr$color = as.character(col.abr$color)
   col.abr = as.vector(col.abr$color)

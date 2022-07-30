@@ -17,7 +17,8 @@ plot_varimax_gradient_fill(
   conf = 0.95,
   density = F,
   fliph = F,
-  flipv = F
+  flipv = F,
+  missing = "plot"
 )
 }
 \arguments{
@@ -42,6 +43,9 @@ plot_varimax_gradient_fill(
 \item{density}{plot x-y density plots}
 
 \item{fliph, flipv}{flip plot hoirzontally or vertically}
+
+\item{missing}{plot, plot.grey90 or do.not.plot points with missing gradient fill values 
+(grey90 is lighter than the default grey)}
 }
 \description{
 Plots varimax PCA from scores file (output of PCA_from_file followed by varimax_from_file)

@@ -15,6 +15,8 @@
 #' @param conf default = 0.95 
 #' @param density plot x-y density plots
 #' @param fliph,flipv flip plot hoirzontally or vertically
+#' @param missing plot, plot.grey90 or do.not.plot points with missing gradient fill values 
+#'                (grey90 is lighter than the default grey)
 #' 
 # @importFrom ggplot2 ggplot aes aes_string element_rect element_text geom_point geom_text labs margin theme theme_bw
 #' 
@@ -40,7 +42,7 @@
 
 
 plot_varimax_gradient_fill = function(file, info.name, info.type, info.color, title = "", labels = TRUE, PCx="PC1", PCy="PC2", ellipse = F, conf = 0.95, density=F,
-                    fliph = F, flipv = F){  
+                    fliph = F, flipv = F, missing = "plot"){  
   #Input: PCA scores file to be ploted
   ##process pca output and adds groupings
   require(ggplot2);require(ggpubr)
@@ -61,7 +63,8 @@ plot_varimax_gradient_fill = function(file, info.name, info.type, info.color, ti
    
   #pcx.y <- ggplot(table, aes_string(x=PCx,y=PCy)) +geom_point(size = I(3), aes(color = factor(type))) +
   #pcx.y <- ggplot(table, aes_string(x=PCx,y=PCy)) +geom_point(size = I(3), aes(fill = color)) +
-    
+
+  if (missing == "plot") {    
   pcx.y <- ggplot(table, aes_string(x=PCx,y=PCy)) +geom_point(size = I(3), aes(fill = color), colour="black",pch=21) +
     
     
@@ -77,6 +80,50 @@ plot_varimax_gradient_fill = function(file, info.name, info.type, info.color, ti
     theme_bw(base_size=18)+
     if(labels==TRUE){geom_text(data = table, mapping = aes(label = Score), check_overlap = TRUE, size = 3)}
   
+  } else if (missing == "plot.grey90") {
+    
+    #pcx.y <- ggplot(table, aes_string(x=PCx,y=PCy)) +geom_point(size = I(3), aes(color = factor(type))) +
+    #pcx.y <- ggplot(table, aes_string(x=PCx,y=PCy)) +geom_point(size = I(3), aes(fill = color)) +
+    
+    pcx.y <- ggplot(table, aes_string(x=PCx,y=PCy)) +geom_point(size = I(3), aes(fill = color), colour="black",pch=21) +
+      
+      
+      scale_fill_gradientn("",colours=c(rev(brewer.pal(9,colorpalette))),limits=c(min,max),na.value="grey90") +
+      
+      theme(legend.position="right",plot.title=element_text(size=30),legend.text=element_text(size=22),
+            legend.title=element_text(size=20),axis.title=element_text(size=30),legend.background = element_rect(),
+            axis.text.x = element_text(margin = margin(b=-2)),axis.text.y = element_text(margin = margin(l=-14)))+
+      guides(color=guide_legend(title="Type"))+
+      labs(title = title, 
+           x = paste0(PCx,"", "", ""),
+           y = paste0(PCy,"", "", ""))+
+      theme_bw(base_size=18)+
+      if(labels==TRUE){geom_text(data = table, mapping = aes(label = Score), check_overlap = TRUE, size = 3)}
+    
+    
+  } else if (missing == "do.not.plot") {
+  
+    #pcx.y <- ggplot(table, aes_string(x=PCx,y=PCy)) +geom_point(size = I(3), aes(color = factor(type))) +
+    #pcx.y <- ggplot(table, aes_string(x=PCx,y=PCy)) +geom_point(size = I(3), aes(fill = color)) +
+    
+    pcx.y <- ggplot(data = subset(table, !is.na(color)), aes_string(x=PCx,y=PCy)) +geom_point(size = I(3), aes(fill = color), colour="black",pch=21) +
+      
+      
+      scale_fill_gradientn("",colours=c(rev(brewer.pal(9,colorpalette))),limits=c(min,max)) +
+      
+      theme(legend.position="right",plot.title=element_text(size=30),legend.text=element_text(size=22),
+            legend.title=element_text(size=20),axis.title=element_text(size=30),legend.background = element_rect(),
+            axis.text.x = element_text(margin = margin(b=-2)),axis.text.y = element_text(margin = margin(l=-14)))+
+      guides(color=guide_legend(title="Type"))+
+      labs(title = title, 
+           x = paste0(PCx,"", "", ""),
+           y = paste0(PCy,"", "", ""))+
+      theme_bw(base_size=18)+
+      if(labels==TRUE){geom_text(data = subset(table, !is.na(color)), mapping = aes(label = Score), check_overlap = TRUE, size = 3)}
+    
+  } else {
+    return("ERROR: 'missing' variable not indicated (plot, plot.grey90, do.not.plot)")
+  }
   
   if(ellipse==TRUE){
     plot(table[,c(PCx, PCy)], main=title)

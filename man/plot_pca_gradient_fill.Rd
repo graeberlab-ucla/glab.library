@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_pca_gradient_fill.R
 \name{plot_pca_gradient_fill}
 \alias{plot_pca_gradient_fill}
-\title{Plot PCA}
+\title{Plot PCA Gradient Fill}
 \usage{
 plot_pca_gradient_fill(
   file,
@@ -17,7 +17,8 @@ plot_pca_gradient_fill(
   conf = 0.95,
   density = F,
   fliph = F,
-  flipv = F
+  flipv = F,
+  missing = "plot"
 )
 }
 \arguments{
@@ -42,6 +43,9 @@ plot_pca_gradient_fill(
 \item{density}{plot x-y density plots}
 
 \item{fliph, flipv}{flip plot hoirzontally or vertically}
+
+\item{missing}{plot, plot.grey90 or do.not.plot points with missing gradient fill values 
+(grey90 is lighter than the default grey)}
 }
 \description{
 Plots PCA from scores file (output of PCA_from_file)
