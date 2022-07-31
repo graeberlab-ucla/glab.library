@@ -15,3 +15,10 @@ enricher.df
 \description{
 runs a full enrichR analhysis
 }
+\details{
+CRAN
+install.packages("enrichR")  
+Github
+library(devtools)
+install_github("wjawaid/enrichR")
+}

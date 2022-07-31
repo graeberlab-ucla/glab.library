@@ -2,6 +2,13 @@
 #' 
 #' runs a full enrichR analhysis
 #' 
+#' CRAN
+#' install.packages("enrichR")  
+#' Github
+#' library(devtools)
+#' install_github("wjawaid/enrichR")
+#'   
+#' 
 #' @param topN list of the genes for the enrichmnet analysis
 #' @return enricher.df
 #' 
@@ -11,7 +18,7 @@
 #' 
 
 run.enrichR <- function(topN){ #topN = top500
-  #library(enrichR)
+  require(enrichR)
   # listEnrichrSites()
   setEnrichrSite("Enrichr") # Human genes
   websiteLive <- TRUE
