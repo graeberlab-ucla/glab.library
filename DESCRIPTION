@@ -12,6 +12,13 @@ LazyData: true
 RoxygenNote: 7.2.1
 Suggests: knitr, rmarkdown
 VignetteBuilder: knitr
+biocViews:
 Imports: 
+    enrichR,
+    ggplot2,
+    ggpubr,
+    ggrepel,
     mixOmics,
-    rgl
+    RColorBrewer,
+    rgl,
+    vegan

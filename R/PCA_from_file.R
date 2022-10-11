@@ -16,7 +16,7 @@
 
 
 PCA_from_file=function(file,center=TRUE,scale=FALSE, fread = FALSE) {
-  
+
   require(data.table)
   if(fread==T){
     data = fread(file)

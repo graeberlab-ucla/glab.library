@@ -11,20 +11,20 @@
 #' @param Title Title name that will display at the top of the plot.
 #' @param drawshape Boolean TRUE/FALSE. Finds the center 3d point of all points for each group and then connects the dots to form a 3d shape if one exists.
 #' @author Alexzandra Morris
-#' 
+#'
+#' @importFrom rgl plot3d bgplot3d segments3d text3d title3d
+#' @importFrom graphics plot.new
+#'
 #' @export
-#' @examples 
-#' 
-#' 
-#' importFrom rgl plot3d bgplot3d
-#' 
-#' 
+#' @examples
+#'
+#'
 #' #rgl package for 3d plots (Alexzandra)
-#' devtools::install_github("dmurdoch/rgl")
+#' #devtools::install_github("dmurdoch/rgl")
 #' #devtools::install_github("dmurdoch/rgl", force=TRUE)
 #' #rgl relaated:  https://r-graphics.org/recipe-miscgraph-3d-save
-#' 
-#' #' data(iris)
+#'
+#' data(iris)
 #' iris.pca <- prcomp(iris[,-c(5)], center = TRUE,scale. = TRUE)
 #' scores<-as.data.frame(iris.pca$x)
 #' scores<-cbind(rownames(iris),scores)

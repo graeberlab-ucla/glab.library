@@ -44,10 +44,12 @@ Used to visualize principle component analysis in 3 dimensional space.
 \examples{
 
 
-importFrom rgl plot3d bgplot3d
+#rgl package for 3d plots (Alexzandra)
+#devtools::install_github("dmurdoch/rgl")
+#devtools::install_github("dmurdoch/rgl", force=TRUE)
+#rgl relaated:  https://r-graphics.org/recipe-miscgraph-3d-save
 
-
-#' data(iris)
+data(iris)
 iris.pca <- prcomp(iris[,-c(5)], center = TRUE,scale. = TRUE)
 scores<-as.data.frame(iris.pca$x)
 scores<-cbind(rownames(iris),scores)
