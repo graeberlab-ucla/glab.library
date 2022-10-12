@@ -6,7 +6,7 @@ fig_width: 7
 fig_height: 5
 vignette: >
   %\VignetteIndexEntry{PCA_tutorial}
-  %\VignetteEngine{rmarkdown::render}
+  %\VignetteEngine{knitr::knitr}
   %\VignetteEncoding{UTF-8}
 ---
 
@@ -56,13 +56,13 @@ If you're writing a function for yourself and not trying to run one from a packa
 # source('/R/plot_pca.R')
 ```
 
-The gene expression data is a data frame structure, with columns representing different prostate cancer samples and rows representing different genes as shown in the first 10 rows of the data frame. The values indicate levels of gene expression of a gene for a given sample.
+The gene expression data is a data frame structure, with columns representing different prostate cancer samples and rows representing different genes as shown in the first 5 rows of the data frame. The values indicate levels of gene expression of a gene for a given sample.
 
 ```{r Load & view gene expression data}
 gene.expression <- read.delim(
   file = "Beltran_2016_rsem_genes_upper_norm_counts_coding_log2.txt",
   header = T)
-head(gene.expression, n=10)
+head(gene.expression, n=5)
 ```
 
 Run PCA using the function in this package. The function will output 3 text files associated with the PCA run to the folder that the gene expression counts are located:
@@ -81,7 +81,7 @@ Load in the annotation file for the samples. This file contains a table matching
 
 ```{r Load annotation file}
 human.info <- read.delim("human.info.rsem.expression.txt")
-head(human.info)
+head(human.info, n=5)
 ```
 
 By listing all the unique types in this table, you can see that there's 91 unique types in this table too.
