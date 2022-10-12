@@ -10,11 +10,11 @@ Library of useful functions and R scripts for data mining.
 
 ## Installation
 
-You can install glab.library as an R package with:
+You can install glab.library as a R package with:
 
 ``` r
 if (!require("devtools", quietly = TRUE))
     install.packages("devtools")
 
-devtools::install_github("liaoyjruby/glab.library2")
+devtools::install_github("graeberlab-ucla/glab.library")
 ```
