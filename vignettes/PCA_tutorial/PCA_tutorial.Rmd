@@ -14,7 +14,7 @@ vignette: >
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-Originally written by Katherine, updated 10/12/2022 by Ruby. Recommend running this tutorial using RStudio.
+Originally written by Katherine, updated 10/18/2022 by Ruby. Recommend running this tutorial by downloading this Rmd file and input data files into the same directory. Use RStudio and run code chunks individually.
 
 ## Introduction
 
@@ -30,7 +30,7 @@ Input data (can download from this repository):
     -   Beltran_2016_rsem_genes_upper_norm_counts_coding_log2.txt: gene expression data per sample
     -   human.info.rsem.expression.txt: annotation file for samples
 
-As the file name for the data implies, the input data comes from a 2016 paper from @beltran2016 .
+As the file name for the data implies, the input data comes from a 2016 paper from Beltran et al. Download the files by clicking into data pages on GitHub and right click to "Save As" a text file in the same folder as this Rmd file.
 
 Scripts:
 
@@ -103,7 +103,7 @@ glab.library::plot_pca(file = "Beltran_2016_rsem_genes_upper_norm_counts_coding_
 
 Additional PCA resources:
 
-- https://georgemdallas.wordpress.com/2013/10/30/principal-component-analysis-4-dummies-eigenvectors-eigenvalues-and-dimension-reduction/
+-   <https://georgemdallas.wordpress.com/2013/10/30/principal-component-analysis-4-dummies-eigenvectors-eigenvalues-and-dimension-reduction/>
 
 ## PLSR Run & Plot
 
@@ -143,6 +143,7 @@ glab.library::PLSR_from_file(
 ```
 
 The plot for this data should show a clear separation between "NEPC" and "CRPC types along the first component (x-axis).
+
 ```{r Plot PLSR, fig.width=7, fig.height=5}
 human.info <- read.delim("human.info.rsem.expression.txt")
 
