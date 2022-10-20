@@ -20,6 +20,15 @@ Originally written by Katherine, updated 10/18/2022 by Ruby. Recommend running t
 
 Here are some examples for running PCA and PLSR using functions from this package. The tutorial is written in R Markdown format -- similar to Jupyter Notebooks for Python where code chunks are interspersed between descriptive text and can be run.
 
+If you haven't already, make sure the glab.library R package is installed in your version of R. You can run these lines of codes that will check if you have the package `devtools`, where `devtools` is used to install packages that are hosted on GitHub.
+
+```{r Install glab.library}
+if (!require("devtools", quietly = TRUE))
+    install.packages("devtools")
+
+devtools::install_github("graeberlab-ucla/glab.library")
+```
+
 ## PCA Run & Plot
 
 First, we'll run PCA and plot results. Principal Components Analysis is an **unsupervised** dimensionality reduction algorithm used often in analysis of gene expression data. PCA transform the data in a way that maximizes variance and results in uncorrelated components that makes it easier to see trends between gene expression and samples when plotted and colored by conditions of interest (batch, sample type, cancer subtype, etc.)
