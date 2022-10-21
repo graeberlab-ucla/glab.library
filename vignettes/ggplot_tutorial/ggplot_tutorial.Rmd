@@ -1,5 +1,6 @@
 ---
 title: "ggplot_tutorial"
+author:"Nick Bayley, RMarkdown by Alexzandra Morris" 
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{ggplot_tutorial}
