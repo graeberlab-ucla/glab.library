@@ -1,0 +1,422 @@
+---
+title: "ggplot_tutorial"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{ggplot_tutorial}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE, echo = FALSE, warning=FALSE, message=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(glab.library)
+library(glab.library)
+library(ggplot2)
+```
+
+
+```{r available data}
+
+head(iris)
+```
+
+# 1. The Basics
+
+**Set up mapping aesthetics by mapping continuous variables (columns in our dataset) to x and y axes.**
+```{r mapping aesthetics, fig.width=5, fig.height=3}
+ggplot(data = iris, mapping = aes(x = Sepal.Length, y = Sepal.Width))
+```
+
+
+# Creating a scatterplot by adding a geom_point layer
+```{r scatterplot with geom_point, fig.width=5, fig.height=3}
+ggplot(iris, aes(x = Sepal.Length, y = Sepal.Width)) +
+geom_point()
+```
+
+# Add color by species of plant to the aesthetics mapping
+```{r color by species, fig.width=5, fig.height=3}
+ggplot(iris, aes(x = Sepal.Length, y = Sepal.Width, color = Species)) +
+geom_point()
+```
+
+# Adding multiple layers
+
+**Set up mapping aesthetics with discrete x variable and continuous y variable.**
+```{r multiple layers - discrete + continuous, fig.width=5, fig.height=3}
+ggplot(iris, aes(x = Species, y = Sepal.Width, color = Species)) +
+geom_point()
+```
+
+# Try a different geometric layer boxplot.
+```{r multiple layers - layer boxplot, fig.width=5, fig.height=3}
+ggplot(iris, aes(x = Species, y = Sepal.Width, color = Species)) +
+geom_boxplot()
+```
+
+# or a violin plot.
+```{r multiple layers - violin plot, fig.width=5, fig.height=3}
+ggplot(iris, aes(x = Species, y = Sepal.Width, color = Species)) +
+geom_violin()
+```
+
+# Add second layer for points.
+```{r second layer - points, fig.width=5, fig.height=3}
+ggplot(iris, aes(x = Species, y = Sepal.Width, color = Species)) +
+geom_violin() + geom_point()
+```
+
+Note that the order of the layers matters! The first ones are plotted first and new layers are added on top (Only the violins are visible)
+```{r layer order matters, fig.width=5, fig.height=3}
+ggplot(iris, aes(x = Species, y = Sepal.Width, color = Species)) +
+geom_point() + geom_violin()
+```
+
+# geom_jitter for points with some random noise added.
+If the points are overlapping each other, try this. 
+```{r avoid point overlap with jitter, fig.width=5, fig.height=3}
+ggplot(iris, aes(x = Species, y = Sepal.Width, color = Species)) +
+geom_violin() + geom_jitter(width = 0.33, height = 0.05)
+```
+
+
+# Beeswarm Plots: More organized points with random noise 
+Jittered points help but some points may still be overlapping, so let's use Beeswarm Plots. 
+```{r jitter with beeswarm, fig.width=5, fig.height=3}
+library(ggbeeswarm)
+ggplot(iris, aes(x = Species, y = Sepal.Width, color = Species)) +
+geom_violin() + geom_beeswarm(size = 1.5, cex = 1.5)
+```
+
+# Mapping by layer
+
+**Color one specific layer of ggplot**
+
+Suppose we only want one layer to be colored, rather than all of them. Here we move mapping of color to a specific layer of the ggplot.
+```{r mapping by layer with beeswarm, fig.width=5, fig.height=3}
+ggplot(iris, aes(x = Species, y = Sepal.Width)) +
+geom_violin(aes(color = Species)) + geom_beeswarm(size = 1.5, cex = 1.5)
+```
+
+# Facets
+
+# Mapping continuous variables to x and y axes.
+Set up mapping aesthetics by mapping continuous variables to x and y axes and coloring by "Treatment". 
+```{r facets, fig.width=5, fig.height=3}
+head(CO2)
+gg <- ggplot(CO2, aes(x = conc, y = uptake, color = Treatment)) +
+geom_point()
+print(gg)
+```
+
+# Facet Wrap
+Our data comes from two different sites. Let's separate the plots by the collection site using facet_wrap.
+```{r facet_wrap to separate sites, fig.width=5, fig.height=3}
+gg2 <- gg + facet_wrap(~ Type)
+print(gg2)
+```
+
+# Adding a smooth fitted line to help visualize the trend.
+```{r , fig.width=5, fig.height=3}
+gg2 + geom_smooth()
+```
+
+# What if we don't want the lines colored? 
+We can try removing the color mapping in favor of a constant mapping to "black". However, this will cause an issue! The color aesthetic distinguished the two lines we want to draw per facet.
+```{r ,fig.width=5, fig.height=3}
+gg2 + geom_smooth(color = "black")
+```
+
+# Use the group aesthetic mapping when you want to separate mappings without color/fill/etc.
+```{r ,fig.width=6, fig.height=4}
+gg2 + geom_smooth(aes(group = Treatment), color = "black", se = F)
+```
+
+# Method Parameter
+Although it does not make sense for this data in particular, we can change the method parameter to define what kind of line is fit to the data.
+```{r ,fig.width=7, fig.height=5}
+gg2 + geom_smooth(aes(group = Treatment), color = "black", se = F, method = "lm")
+```
+
+# Barcharts and Stacking
+
+```{r barcharts and stacking,fig.width=5, fig.height=3}
+head(mtcars)
+```
+
+# Set up mappings
+```{r mappings,fig.width=5, fig.height=3}
+gg <- ggplot(mtcars, aes(x = factor(gear), fill = factor(carb)))
+```
+
+# Stacked barchart of counts, colored by the number of carburetors.
+```{r stacking,fig.width=5, fig.height=3}
+gg + geom_bar(position = "stack")
+```
+
+# Without the fill parameter, the plot will show the count of each gear.
+```{r ,fig.width=5, fig.height=3}
+ggplot(mtcars, aes(x = factor(gear))) + geom_bar()
+```
+
+# Stacked barchart with relative proportions
+```{r ,fig.width=5, fig.height=3}
+gg + geom_bar(position = "fill")
+```
+
+# Dodged barchart with counts
+```{r ,fig.width=5, fig.height=3}
+gg + geom_bar(position = "dodge")
+```
+
+# Integrating dpylr
+
+If we want to plot the relative frequencies AND still dodge the fill mapping we will need to use dplyr to calculate the values ourselves instead of leaving it up to R.
+```{r }
+library(dplyr)
+```
+
+# Calculate relative frequencies using dplyr piping
+```{r ,fig.width=5, fig.height=3}
+mtcars %>%
+group_by(gear, carb) %>%
+summarize(n = n()) %>%
+mutate(freq = n / sum(n)) %>%
+ggplot(aes(x = factor(gear), y = freq, fill = factor(carb))) +
+geom_bar(stat = "identity", position = "dodge")
+```
+
+# 2. Detailing and Saving Plots
+
+```{r ,fig.width=5, fig.height=3}
+gg <- ggplot(iris, aes(x = Sepal.Length, y = Sepal.Width, color = Species)) +
+geom_point() + stat_ellipse(show.legend = F)
+print(gg)
+
+gg + theme_classic()
+gg + theme_minimal()
+gg + theme_bw()
+```
+
+# Themes
+Some other themes I like to use are theme_bw() and theme_minimal() 
+link to list of themes: https://ggplot2.tidyverse.org/reference/ggtheme.html
+```{r ,fig.width=5, fig.height=3}
+library(RColorBrewer)
+```
+
+# Incorporating many elements
+preset theme + custom theme (custom elements must come after preset!!)
+setting axis limits with xlim/ylim
+changing labels
+changing colors with RColorBrewer
+```{r ,fig.width=5, fig.height=3}
+pretty_gg <- gg +
+theme_classic() +
+theme(axis.text = element_text(size = 9, color = "black"),
+legend.position = "bottom", plot.title = element_text(hjust=0.5, size = 10),
+axis.title = element_text(size = 9)) +
+ylim(2, 4.25) +
+labs(x = "Sepal Length", y = "Sepal Width", fill = "Species",
+title = "Sepal Length vs. Sepal Width across Iris Species") +
+scale_color_brewer(palette = "Dark2")
+print(pretty_gg)
+```
+
+# Saving Images
+Save image as .png using "cairo" graphics device ("cairo" for windows, "Xlib" or "quartz" for mac) you may need to install the Cairo package with install.packages("Cairo") [this may also work for mac]
+```{r ,fig.width=5, fig.height=3}
+png(filename = "Iris Sepal Length vs Sepal Width.png", res = 300, type = "Xlib",
+	height = 1200, width = 1200)
+print(pretty_gg)
+dev.off()
+```
+
+# Without setting type to cairo, the resulting image quaility will be lower. 
+This particularly affects curved lines and circles
+```{r ,fig.width=5, fig.height=3}
+png(filename = "Iris Sepal Length vs Sepal Width no Cairo.png", res = 300, #won't be as clear
+	height = 1200, width = 1200)
+print(pretty_gg)
+dev.off()
+```
+
+# Set the units to inches for ease of use.
+```{r ,fig.width=5, fig.height=3}
+png(filename = "Iris Sepal Length vs Sepal Width.png", res = 300, type = "cairo",
+	units = "in", height = 4, width = 4)
+print(pretty_gg)
+dev.off()
+```
+
+# Another way to save images is with the ggpubr package.
+```{r ,fig.width=5, fig.height=3}
+library(ggpubr)
+ggsave("Iris Sepal Length vs Sepal Width.png", pretty_gg, dpi = 300, type = "cairo",
+	height = 4, width = 4)
+```
+
+# Ordering factors in boxplot/barchart
+
+# Simple boxplot
+```{r ,fig.width=5, fig.height=3}
+ggplot(CO2, aes(x = Type, y = uptake, fill = Treatment)) + geom_boxplot()
+```
+
+# Create new factor combining Treatment and Type. 
+This allows us to use more colors if needed.
+```{r }
+CO2$interaction <-  factor(paste0(CO2$Treatment, CO2$Type),
+	levels = c("nonchilledMississippi", "chilledMississippi",
+	"nonchilledQuebec", "chilledQuebec"))
+```
+
+# Customized ggplot boxplot
+1. Setting x axis order of factors
+2. Manually changing fill palette, still using RColorBrewer brewer.pal()
+3. Changing labels
+4. Preset theme + custom theme
+```{r ,fig.width=5, fig.height=3}
+boxplot_gg <- ggplot(CO2, aes(x = Type, y = uptake, fill = interaction)) +
+geom_boxplot(color = "black", outlier.size = 0.5) +
+scale_x_discrete(limits = c("Mississippi", "Quebec")) +
+scale_fill_manual(values = brewer.pal("Paired", n = 9)[c(1,2,5,6)],
+	labels = c("control (M)", "chilled (M)", "control (Q)", "chilled (Q)")) +
+labs(x = "", y = expression(CO[2]~Uptake~(mu*mol/m^2~sec)), fill = "Treatment") +
+theme_classic() +
+theme(axis.text.x = element_text(size = 9, color = "black", angle = 45, hjust = 1),
+	axis.text.y = element_text(size = 8, color = "black"))
+```
+
+# Works the same as print(boxplot_gg) if you have a graphics device open.
+```{r ,fig.width=5, fig.height=3}
+boxplot_gg
+ggsave("CO2 Uptake by Location by Treatment.png", boxplot_gg, dpi = 300, type = "cairo",
+	height = 3, width = 3)
+```
+
+
+# 3. Wide vs. Long Data Format
+```{r }
+head(USPersonalExpenditure)
+```
+
+# Cast as data frame for compatiblity with ggplot.
+R doesn't like numeric column names, and adds an X to the beginning.
+```{r }
+df <- data.frame(USPersonalExpenditure)
+```
+
+# Use melt to transform the data into long format.
+```{r }
+library(reshape)
+USPE_melt <- melt(USPersonalExpenditure)
+```
+
+# Add some descriptive column names.
+```{r }
+colnames(USPE_melt) <- c("variable", "year", "value")
+```
+
+# Scatterplot comparing expenditures in 1940 and 1945 with wide format data.
+Here, coord_fixed() forces the axes to the same scale.
+geom_label adds text labels to the plot, but they are cutoff by the plot margins.
+```{r }
+ggplot(df, aes(x = X1940, y = X1945)) +
+geom_point() +
+geom_abline() +
+geom_label(aes(label = rownames(df))) +
+coord_fixed() +
+labs(x = "Expenditures in 1940 (Billions of Dollars)",
+	y = "Expenditures in 1945 (Billions of Dollars)")
+```
+
+
+
+
+# We can use geom_label_repel (and geom_text_repel) to add non-overlapping labels.
+THIS ONE IS MUCH BETTER. NO OVERLAP.
+```{r }
+library(ggrepel)
+ggplot(df, aes(x = X1940, y = X1945)) +
+geom_point() +
+geom_abline() +
+geom_label_repel(aes(label = rownames(df)), force = 20) +
+coord_fixed() +
+labs(x = "Expenditures in 1940 (Billions of Dollars)",
+	y = "Expenditures in 1945 (Billions of Dollars)")
+```
+
+# Another way to visualize the difference in expenditures with long format data.
+```{r,fig.width=5, fig.height=3}
+USPE_melt %>%
+filter(year %in% c(1940, 1945)) %>%
+ggplot(aes(x = factor(year), y = value, group = 1)) +
+geom_line() +
+geom_point() +
+facet_wrap(~ variable) +
+labs(x = "Year", y = "Total US Expenditures (Billions of Dollars)") +
+theme_bw()
+```
+
+# If we scale the data independently it may become less intuitive.
+```{r ,fig.width=5, fig.height=3}
+USPE_melt %>%
+filter(year %in% c(1940, 1945)) %>%
+ggplot(aes(x = factor(year), y = value, group = 1)) +
+geom_line() +
+geom_point() +
+facet_wrap(~ variable, scale = "free_y") +
+labs(x = "Year", y = "Total US Expenditures (Billions of Dollars)") +
+theme_bw()
+```
+
+# Long format data enables us to look at even more data points.
+```{r ,fig.width=5, fig.height=3}
+ggplot(USPE_melt, aes(x = factor(year), y = value, group = 1)) +
+geom_line() +
+geom_point() +
+facet_wrap(~ variable) +
+labs(x = "Year", y = "Total US Expenditures (Billions of Dollars)") +
+theme_bw()
+```
+
+# Specifying certain columns you do not want in long format. 
+These wil be for factor levels you plan on using later while plotting.
+```{r }
+mtcars_melt <- melt(mtcars, id.vars = c("vs", "am", "gear", "carb"))
+```
+
+# Another example combining many layers and parameters.
+```{r }
+ggplot(mtcars_melt, aes(y = value, x = factor(am))) +
+geom_violin() +
+geom_beeswarm(aes(color = factor(vs)), cex = 5) +
+facet_wrap(~ variable, scale = "free_y") +
+theme_bw() +
+scale_x_discrete(limits = factor(c(0,1)), labels = c("Automatic", "Manual")) +
+labs(x = "", y = "Value", color = "Engine Type", title = "Automatic\nvs.\nManual\nMotor Vehicle Trends") +
+scale_color_manual(values = c("black", "red"), labels = c("V-shaped", "Straight"))
+```
+
+# Here, independent scaling of the y-axis is preferred.
+If we don't some variables can't be viewed properly.
+```{r }
+ggplot(mtcars_melt, aes(y = value, x = factor(am))) +
+geom_violin() +
+geom_beeswarm(aes(color = factor(vs)), cex = 5) +
+facet_wrap(~ variable) +
+theme_bw() +
+scale_x_discrete(limits = factor(c(0,1)), labels = c("Automatic", "Manual")) +
+labs(x = "", y = "Value", color = "Engine Type", title = "Automatic\nvs.\nManual\nMotor Vehicle Trends") +
+scale_color_manual(values = c("black", "red"), labels = c("V-shaped", "Straight"))
+```
+
+
+
