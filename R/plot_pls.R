@@ -32,10 +32,16 @@ plot_pls <- function(file, info.name, info.type, title = "", labels = TRUE, PCx 
     table[, PCy] <- table[, PCy] * -1
   }
 
-
-  exp_var <- read.delim(paste0(gsub("scores.txt", "", file), "pve.txt"), row.names = 1)
-  exp_var$pve <- unlist(round(exp_var[, 1] * 100, digits = 2))
-  rownames(exp_var) <- paste0("comp", seq(1, nrow(exp_var)))
+  if (!grepl("VARIMAX", file)){
+    exp_var <- read.delim(paste0(gsub("scores.txt", "", file), "pve.txt"), row.names = 1)
+    exp_var$pve <- unlist(round(exp_var[, 1] * 100, digits = 2))
+    rownames(exp_var) <- paste0("comp", seq(1, nrow(exp_var)))
+    xlab <- paste0(PCx, " (", exp_var$pve[match(PCx, rownames(exp_var))], "%)")
+    ylab <- paste0(PCy, " (", exp_var$pve[match(PCy, rownames(exp_var))], "%)")
+  } else {
+    xlab <- PCx
+    ylab <- PCy
+  }
 
   pcx.y <- ggplot(table, aes_string(x = PCx, y = PCy)) +
     geom_point(size = I(3), aes(color = factor(type))) +
@@ -52,8 +58,8 @@ plot_pls <- function(file, info.name, info.type, title = "", labels = TRUE, PCx 
     guides(color = guide_legend(title = "Type")) +
     labs(
       title = title,
-      x = paste0(PCx, " (", exp_var$pve[match(PCx, rownames(exp_var))], "%)"),
-      y = paste0(PCy, " (", exp_var$pve[match(PCy, rownames(exp_var))], "%)")
+      x = xlab,
+      y = ylab
     ) +
     theme_bw(base_size = 18) +
     if (labels == TRUE) {
@@ -62,6 +68,10 @@ plot_pls <- function(file, info.name, info.type, title = "", labels = TRUE, PCx 
 
 
   if (ellipse == TRUE) {
+    if(grepl("VARIMAX", file)){
+      PCx <- sub("[a-zA-Z]*", "V", PCx)
+      PCy <- sub("[a-zA-Z]*", "V", PCy)
+    }
     plot(table[, c(PCx, PCy)], main = title)
     ord <- vegan::ordiellipse(table[, c(PCx, PCy)], table$type, kind = "sd", conf = conf)
 

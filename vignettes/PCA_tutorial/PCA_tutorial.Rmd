@@ -16,6 +16,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Originally written by Katherine, updated 10/18/2022 by Ruby. Recommend running this tutorial by downloading this Rmd file and input data files into the same directory. Use RStudio and run code chunks individually.
 
+If you're using a Mac, you may need to install [XQuartz](https://www.xquartz.org/) for the 3D PCA to display correctly (and for R Markdown to work).
+
 ## Introduction
 
 Here are some examples for running PCA and PLSR using functions from this package. The tutorial is written in R Markdown format -- similar to Jupyter Notebooks for Python where code chunks are interspersed between descriptive text and can be run.
@@ -121,7 +123,6 @@ Next, we'll run PLSR and plot results. PLSR is a **supervised** algorithm that m
 Scripts:
 
 -   glab.library/R/
-    -   varimax_from_file.R
     -   PLSR_from_file.R
     -   plot_pls.R
 
@@ -151,7 +152,7 @@ glab.library::PLSR_from_file(
   comps = 5, scale = F)
 ```
 
-The plot for this data should show a clear separation between "NEPC" and "CRPC types along the first component (x-axis).
+The plot for this data should show a clear separation between "NEPC" and "CRPC" types along the first component (x-axis).
 
 ```{r Plot PLSR, fig.width=7, fig.height=5}
 human.info <- read.delim("human.info.rsem.expression.txt")
@@ -184,6 +185,21 @@ glab.library::plot_pca(
   labels = T, ellipse = T,
   title = "Beltran 2016 PCA Scores - Varimax",
 )
+
+glab.library::varimax_from_file(
+  file.scores = "Beltran_2016_rsem_genes_upper_norm_counts_coding_log2_PLSR_Xscores.txt",
+  file.loadings = "Beltran_2016_rsem_genes_upper_norm_counts_coding_log2_PLSR_Xloadings.txt",
+  comp = 2, normalize = F
+)
+
+# Plotting setup is the same as the previous PLSR run
+glab.library::plot_pls(
+  file = "Beltran_2016_rsem_genes_upper_norm_counts_coding_log2_PLSR_Xscores_VARIMAX.txt",
+  info.name = human.info$sample,
+  info.type = human.info$type,
+  title = "Beltran 2016 PLSR Scores (y = NEPC) - Varimax",
+  labels = T,
+  PCx = "V1", PCy = "V2", ellipse = T, conf = 0.90)
 ```
 
 ## PCA 3D Visualization
