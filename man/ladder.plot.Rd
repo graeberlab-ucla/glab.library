@@ -7,11 +7,11 @@
 ladder.plot(z, title, metric, ladder_color, cex = 1.5)
 }
 \arguments{
-\item{z}{dataframe with list of genes (or similar) and metrics that can be used to rank the genes, 
-and indication of the geneset membership based on the gene color (column with colname="color"; 
+\item{z}{dataframe with list of genes (or similar) and metrics that can be used to rank the genes,
+and indication of the geneset membership based on the gene color (column with colname="color";
 any color = member, "trnasparent" = non-member)}
 
-\item{title}{title for the plot, typically the name/description of the gene set used for the 
+\item{title}{title for the plot, typically the name/description of the gene set used for the
 enrichment analysis}
 
 \item{metric}{parameter indicating the metric (column name) in dataframe z to be used to rank genes}
@@ -23,8 +23,4 @@ RVAL
 }
 \description{
 ladder plot with ks p-value
-}
-\examples{
-provided below the functions, at the end of the file
-
 }
