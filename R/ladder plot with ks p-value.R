@@ -11,7 +11,7 @@
 #' @return RVAL
 #' @export
 #'
-#' @examples
+#' 
 #'
 
 
