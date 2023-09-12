@@ -1,0 +1,182 @@
+---
+title: "Projection Part 2: PCA and Plotting Projection"
+author: "Haroon Riyaz"
+date: "2023-07-12"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Originally written by Haroon, 07/12/2023. Recommend running this tutorial by downloading this Rmd file and input data files into the same directory. Use RStudio and run code chunks individually. 
+
+## Introduction
+
+The second part of this tutorial will cover how to perform the principal component analysis and project PCAs onto each other. A PCA on the Kich gene expression data set will be done before the PCA of the Meso gene expression data set is projected on to it and vice versa.
+
+The PCAs will be colored with the annotation file created in part 1. Each sample will be colored according to what cancer type (Meso or Kich) it is. 
+First, the annotation files from part 1 will be read.
+
+```{r}
+group_annotation <- read.table("group_annotation.txt")
+```
+
+Scripts:
+
+-   glab.library/R/
+    -   intersect_doPCA_from_file_and_project_second_dataset.R
+
+The script above will be called in code directly from the package and will be used to do the PCA on one of the gene expression sets while the other is projected on top. 
+
+-   plot_pca_projection_labeloptions.R
+
+The function above is not a part of the glab.library package so the R file must be sourced as shown below if it has not been done so already.
+
+```{r Source PCA functions}
+source("/R/plot_pca_projection_labeloptions.R")
+```
+
+The projection function is called in directly from the package as shown below. The PCA is done on the Kich gene expression data which used the original samples. The Meso gene expression data which uses new samples is then projected on top of it. The 'file' parameter corresponds to the original PCA (Kich) while the 'file2' parameter corresponds to the projection (Meso). 
+
+```{r, results='hide'}
+glab.library::intersect_doPCA_from_file_and_project_second_dataset(file = "Kich_CellLines.txt", file2 =  "Meso_CellLines.txt", train_string = "test", fread = F)
+```
+
+## PCA Plot Projecion
+
+The previous intersect function will produce the PCA score file for the original data (Kich in this case) which is inputted into the "file" parameter. The file should end with "prcomp_scores". It also produces the scores matrix file for the projected data (Meso in this case) which is inputted into the "rotated.file" parameter. The file should end with "prcomp_rotated".
+
+The info.name parameter matches the cell-line/sample names from the annotation file with the the cell-line/sample names from the original PCA scores file (Kich in this case). This will map the Kich cell-line names to their respective points on the plot. The info.name2 parameter matches the cell-line/sample names from the annotation file with the the cell-line/sample names from the projected data (Meso in this case). This will map the Meso cell-line names to their respective points on the plot. "group_annotation$Sample" contains the sample names for both the Kich and Meso cell-lines so it is inputted into both parameters. 
+
+The info.type parameter matches the cell-line/sample groupings from the annotation file with the the samples/cell-lines from the original PCA scores file (Kich in this case). The info.type2 parameter matches the cell-line/sample groupings from the annotation file with the the samples/cell-lines from the projected data (Meso in this case). "group_annotation$Group" contains the cancer types for both the Kich and Meso cell-lines so it is inputted into both parameters. This will color each cell-line on the plot according to what cancer type it is (either Kich or Meso).
+
+The "PCX" and "PCY" parameters control which principal components will be displayed. In this case, PC1 and PC2 will be displayed. 
+
+The "labelsProj" parameter controls whether or not the points from the projected file are labeled. In this case, "labelsProj" is set to true and the labels for the points from the projected file are labeled. 
+
+The "labelsOrgPCA" parameter controls whether or not the points from the original PCA file are labeled. In this case, "labelsOrgPCA" is set to false and the labels for the points from the original file are not labeled.
+
+The following projection plots will show different principal components and labels being displayed.
+
+### PC1 vs PC2: MESO Projection onto KICH PCA ~ Projection labeled  
+
+```{r, message=FALSE}
+glab.library::plot_pca_projection_labeloptions(
+  file = "Kich_CellLines_prcomp_scores.txt",
+  rotated.file = "Meso_CellLines_test_prcomp_rotated.txt",
+  info.name = group_annotation$Sample,
+  info.type = group_annotation$Group,
+  info.name2 = group_annotation$Sample,
+  info.type2 = group_annotation$Group,
+  PCx = "PC1", PCy = "PC2", ellipse = F, labelsProj = T, labelsOrgPCA = F, title = "PC1 vs PC2: MESO Projection onto KICH PCA")
+```
+
+
+### PC1 vs PC2: MESO Projection onto KICH PCA ~ Original labeled  
+
+```{r, message=FALSE}
+glab.library::plot_pca_projection_labeloptions(
+  file = "Kich_CellLines_prcomp_scores.txt",
+  rotated.file = "Meso_CellLines_test_prcomp_rotated.txt",
+  info.name = group_annotation$Sample, 
+  info.type = group_annotation$Group, 
+  info.name2 = group_annotation$Sample, 
+  info.type2 =  group_annotation$Group,
+  PCx = "PC1", PCy = "PC2", ellipse = F, labelsProj = F, labelsOrgPCA = T, title = "PC1 vs PC2: MESO Projection onto KICH PCA")
+```
+
+
+### PC2 vs PC3: MESO Projection onto KICH PCA ~ Projection labeled  
+
+```{r, message=FALSE}
+glab.library::plot_pca_projection_labeloptions(
+  file = "Kich_CellLines_prcomp_scores.txt",
+  rotated.file = "Meso_CellLines_test_prcomp_rotated.txt",
+  info.name = group_annotation$Sample,
+  info.type = group_annotation$Group,
+  info.name2 = group_annotation$Sample,
+  info.type2 = group_annotation$Group,
+  PCx = "PC2", PCy = "PC3", ellipse = F, labelsProj = T, labelsOrgPCA = F, title = "PC2 vs PC3: MESO Projection onto KICH PCA")
+```
+
+
+### PC2 vs PC3: MESO Projection onto KICH PCA ~ Original labeled  
+
+```{r, message=FALSE}
+glab.library::plot_pca_projection_labeloptions(
+  file = "Kich_CellLines_prcomp_scores.txt",
+  rotated.file = "Meso_CellLines_test_prcomp_rotated.txt",
+  info.name = group_annotation$Sample,
+  info.type = group_annotation$Group,
+  info.name2 = group_annotation$Sample,
+  info.type2 = group_annotation$Group,
+  PCx = "PC2", PCy = "PC3", ellipse = F, labelsProj = F, labelsOrgPCA = T, title = "PC2 vs PC3: MESO Projection onto KICH PCA")
+```
+
+Now that the Meso data has been projected and plotted over the PCA plot of the Kich data set, let's try and do the opposite. Now the Meso data will be used for the orginal PCA and the its loadings will be applied to the Kich data set so it can be projected over the Meso PCA. 
+
+
+```{r, results='hide'}
+glab.library::intersect_doPCA_from_file_and_project_second_dataset(file = "Meso_CellLines.txt", file2 =  "Kich_CellLines.txt", train_string = "test", fread = F)
+```
+
+
+### PC1 vs PC2: KICH Projection onto MESO PCA ~ Projection labeled  
+
+```{r results='hide'}
+glab.library::plot_pca_projection_labeloptions(
+  file = "Meso_CellLines_prcomp_scores.txt",
+  rotated.file = "Kich_CellLines_test_prcomp_rotated.txt",
+  info.name = group_annotation$Sample,
+  info.type = group_annotation$Group,
+  info.name2 = group_annotation$Sample,
+  info.type2 = group_annotation$Group,
+  PCx = "PC1", PCy = "PC2", ellipse = F, labelsProj = T, labelsOrgPCA = F, title = "PC1 vs PC2: KICH Projection onto MESO PCA")
+```
+
+
+### PC1 vs PC2: KICH Projection onto MESO PCA ~ Original labeled  
+
+```{r results='hide'}
+glab.library::plot_pca_projection_labeloptions(
+  file = "Meso_CellLines_prcomp_scores.txt",
+  rotated.file = "Kich_CellLines_test_prcomp_rotated.txt",
+  info.name = group_annotation$Sample,
+  info.type = group_annotation$Group,
+  info.name2 = group_annotation$Sample,
+  info.type2 = group_annotation$Group,
+  PCx = "PC1", PCy = "PC2", ellipse = F, labelsProj = F, labelsOrgPCA = T, title = "PC1 vs PC2: KICH Projection onto MESO PCA")
+```
+
+
+### PC2 vs PC3: KICH Projection onto MESO PCA ~ Projection labeled  
+
+```{r results='hide'}
+glab.library::plot_pca_projection_labeloptions(
+  file = "Meso_CellLines_prcomp_scores.txt",
+  rotated.file = "Kich_CellLines_test_prcomp_rotated.txt",
+  info.name = group_annotation$Sample,
+  info.type = group_annotation$Group,
+  info.name2 = group_annotation$Sample,
+  info.type2 = group_annotation$Group,
+  PCx = "PC2", PCy = "PC3", ellipse = F, labelsProj = T, labelsOrgPCA = F, title = "PC2 vs PC3: KICH Projection onto MESO PCA")
+```
+
+
+### PC2 vs PC3: KICH Projection onto MESO PCA ~ Original labeled  
+
+```{r results='hide'}
+glab.library::plot_pca_projection_labeloptions(
+  file = "Meso_CellLines_prcomp_scores.txt",
+  rotated.file = "Kich_CellLines_test_prcomp_rotated.txt",
+  info.name = group_annotation$Sample,
+  info.type = group_annotation$Group,
+  info.name2 = group_annotation$Sample,
+  info.type2 = group_annotation$Group,
+  PCx = "PC2", PCy = "PC3", ellipse = F, labelsProj = F, labelsOrgPCA = T, title = "PC2 vs PC3: KICH Projection onto MESO PCA")
+```
+
+

@@ -1,0 +1,134 @@
+---
+title: "Projection Part 1: Formatting the Data"
+author: "Haroon Riyaz"
+date: "2023-07-12"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Originally written by Haroon, 07/12/2023. Recommend running this tutorial by downloading this Rmd file and input data files into the same directory. Use RStudio and run code chunks individually. 
+
+## Introduction
+
+The first part of this tutorial will cover how to format the data before the principal component analysis and projection can be done. The tutorial is written in R Markdown format -- similar to Jupyter Notebooks for Python where code chunks are interspersed between descriptive text and can be run. 
+
+If you haven't already, make sure the glab.library R package is installed in your version of R. You can run these lines of codes that will check if you have the package `devtools`, where `devtools` is used to install packages that are hosted on GitHub.
+
+```{r Install glab.library}
+if (!require("devtools", quietly = TRUE))
+    install.packages("devtools")
+devtools::install_github("graeberlab-ucla/glab.library")
+```
+
+## Understanding PCA
+
+Data sets may have thousands of different genes making it difficult to see trends in gene expression among samples. Principal Component Analysis makes it easier to see these trends in gene expression data by reducing the number of dimensions. Gene expression data is instead measured by the principal components or directions where the data has the most variance. These principal components can then be plotted, allowing one to see trends in gene expression.
+
+## Understanding PCA Projection
+
+PCA projection can be useful when we have new samples and the corresponding gene expression data; we can compare the original PCA done with the old samples with a PCA containing the new samples by multiplying the new gene expression data by the principal components or loadings of the original PCA and then projecting this new PCA over the original. This preserves the original PCA while allowing one to make comparisons between old and new samples in terms of their gene expression. 
+
+## Downloading RNAseq Data Sets and Scripts
+
+Input data (can download from this repository):
+
+-   glab.library/vignettes/projection
+    -   HiSeqV2_KICH: Kidney chromophobe gene expression
+    -   HiSeqV2_MESO: Mesothelioma gene expression
+
+<!-- Scripts: -->
+
+<!-- -   glab.library/R/ -->
+<!--     -   intersect_doPCA_from_file_and_project_second_dataset.R -->
+
+<!-- Functions that are installed as part of an R package such as the one above (glab.library) can be called in code directly from the package as shown below. Use '?' before any function to view R Documentation on the Help pane. -->
+
+<!-- ```{r Call function from package} -->
+<!-- ?glab.library::intersect_doPCA_from_file_and_project_second_dataset() -->
+<!-- ``` -->
+
+<!-- -   plot_pca_projection_labeloptions.R -->
+
+<!-- The function above is not a part of the glab.library package so the R file must be sourced as shown below. -->
+
+<!-- ```{r Source PCA functions} -->
+<!-- source("/R/plot_pca_projection_labeloptions.R") -->
+<!-- ``` -->
+
+The Meso and Kich cell-line gene expression files are read with fread() from the data.table package due to the large file sizes. Both gene expression data sets are data frames, with columns representing the samples and rows representing the different genes. Each value indicates the expression level of a gene for a given sample.
+
+```{r}
+
+Kich_CellLines <- data.table::data.frame(fread("HiSeqV2_KICH.txt"))
+Meso_CellLines <- data.table::data.frame(fread("HiSeqV2_MESO.txt"))
+```
+
+The Meso and Kich cell-line gene expression data sets contain genes which do not code for proteins. The following protein coding gene list is read and will be used to filter each cell-line data set so that they only have protein coding genes.
+
+-   glab.library::`TOIL protein coding genelist union`: Protein coding gene list
+
+```{r}
+protein.coding <- glab.library::`TOIL protein coding genelist union`
+
+#Reformats the protein coding gene list as a dataframe 
+
+pcg_header <- as.data.frame(colnames(protein.coding))
+names(pcg_header) <- colnames(protein.coding)
+protein.coding <- rbind(pcg_header, protein.coding)
+colnames(protein.coding) <- "protein_coding_genes"
+
+rm(pcg_header)
+```
+
+The filter() function from the dplyr pacakge is used to filter both the Kich and Meso gene expression data sets so that they only have protein coding genes. The files are filtered so that only rows with genes that correspond to the coding genes are included.
+
+```{r}
+library(dplyr)
+
+Kich_Filtered <- Kich_CellLines %>% filter(Kich_CellLines[,1] %in% protein.coding$protein_coding_genes)
+
+Meso_Filtered <- Meso_CellLines %>% filter(Meso_CellLines[,1] %in% protein.coding$protein_coding_genes)
+```
+
+In order for PCA projection to work, both cell-line data sets must have the same genes. The genes from both data sets are matched and only genes found in both will be included. 
+
+```{r}
+#Determines which genes in the SKCM file match those in the UVM file and vice versa 
+Kich_Match_RowNum <- match(Meso_Filtered$sample, Kich_Filtered$sample)
+Meso_Match_RowNum <- match(Kich_Filtered$sample, Meso_Filtered$sample)
+
+#Genes not present in both data sets are filtered out from each  
+Kich_Filtered_GeneMatch <-Kich_Filtered[Kich_Match_RowNum,]
+Meso_Filtered_GeneMatch <-Meso_Filtered[Meso_Match_RowNum,]
+```
+
+New text files containing the filtered Kich and Meso gene expression data sets are created so the PCA and projection can be done. 
+
+```{r}
+write.table(Kich_Filtered_GeneMatch, file = "Kich_CellLines.txt",row.names = F, sep = "\t")
+
+write.table(Meso_Filtered_GeneMatch, file = "Meso_CellLines.txt",row.names = F, sep = "\t")
+```
+
+An annotation file is read and will be used to color cell-lines by group (all Kich files go into group "Kich", all Meso files go into group "Meso")
+
+```{r}
+#Creates DF with Kich cell-lines
+group_annotation <- data.frame(colnames(Kich_Filtered_GeneMatch)[-1], "Kich")
+
+#Creates column names for DF
+colnames(group_annotation) <- c("Sample", "Group")
+
+#Meso cell-lines are added to the DF
+group_annotation <- group_annotation %>% add_row(Sample = colnames(Meso_Filtered_GeneMatch[-1]), Group = "Meso")
+
+#Writes annotation file to be used in part 2
+write.table(group_annotation, file = "group_annotation.txt")
+```
+
+The projection and plotting can now be done in part 2 of this tutorial.
