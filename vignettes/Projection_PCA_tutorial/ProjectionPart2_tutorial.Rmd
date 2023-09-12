@@ -33,12 +33,6 @@ The script above will be called in code directly from the package and will be us
 
 -   plot_pca_projection_labeloptions.R
 
-The function above is not a part of the glab.library package so the R file must be sourced as shown below if it has not been done so already.
-
-```{r Source PCA functions}
-source("/R/plot_pca_projection_labeloptions.R")
-```
-
 The projection function is called in directly from the package as shown below. The PCA is done on the Kich gene expression data which used the original samples. The Meso gene expression data which uses new samples is then projected on top of it. The 'file' parameter corresponds to the original PCA (Kich) while the 'file2' parameter corresponds to the projection (Meso). 
 
 ```{r, results='hide'}
