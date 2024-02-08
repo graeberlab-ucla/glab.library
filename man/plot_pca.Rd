@@ -16,7 +16,8 @@ plot_pca(
   conf = 0.95,
   density = F,
   fliph = F,
-  flipv = F
+  flipv = F,
+  show.legend = TRUE
 )
 }
 \arguments{
