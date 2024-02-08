@@ -244,6 +244,22 @@ ladder.plot <- function(z,title,metric,ladder_color,cex=1.5) #cex character enha
   
 }
 
+#' ladder.plot.with.transparent.lines
+#'
+#' @param z dataframe with list of genes (or similar) and metrics that can be used to rank the genes, 
+#' and indication of the geneset membership based on the gene color (column with colname="color"; 
+#' any color = member, "trnasparent" = non-member)
+#' @param title title for the plot, typically the name/description of the gene set used for the 
+#' enrichment analysis
+#' @param metric parameter indicating the metric (column name) in dataframe z to be used to rank genes
+#' @param cex character enhancement factor - scales the foint size
+#'
+#' @return RVAL
+#' @export
+#'
+#' @examples provided below the functions, at the end of the file
+#' 
+
 ladder.plot.with.transparent.lines <- function(z,title,metric,ladder_color,cex=1.5) #cex character enhancement factor - scales the font size
 {  
   # for ladder plots 
