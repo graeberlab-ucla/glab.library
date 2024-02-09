@@ -9,7 +9,7 @@ ladder.plot.with.transparent.lines(z, title, metric, ladder_color, cex = 1.5)
 \arguments{
 \item{z}{dataframe with list of genes (or similar) and metrics that can be used to rank the genes, 
 and indication of the geneset membership based on the gene color (column with colname="color"; 
-any color = member, "trnasparent" = non-member)}
+any color = member, "transparent" = non-member)}
 
 \item{title}{title for the plot, typically the name/description of the gene set used for the 
 enrichment analysis}

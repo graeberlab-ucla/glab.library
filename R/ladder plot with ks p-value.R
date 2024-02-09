@@ -48,7 +48,10 @@
 
 ######### ladder plots ######
 # metric = "PC4"     metric = "PC1"     z = z_myo
-
+# if (0) {
+#   #ladder.plot(z = crispr.tibble.ladder, title = description.hm, metric = "distance", ladder_color = ladder_color, cex=1.5)
+#   z = crispr.tibble.ladder; title = description.hm; metric = "distance"; ladder_color = ladder_color; cex=1.5
+# }
 
 
 ladder.plot <- function(z,title,metric,ladder_color,cex=1.5) #cex character enhancement factor - scales the font size
@@ -70,8 +73,8 @@ ladder.plot <- function(z,title,metric,ladder_color,cex=1.5) #cex character enha
   z[string.reverse] = rank(-z[metric], ties.method = "random")
   
   
-  z <- z[order(z[string]),]  
-
+  #z <- z[order(z[string]),]  
+  z <- z %>% dplyr::arrange({{string}})
   
   y <- as.data.frame(z[,colnames(z) == string]) # | colnames(z) == "PC4.rank")]) 
   colnames(y) <- "temp1"
@@ -248,7 +251,7 @@ ladder.plot <- function(z,title,metric,ladder_color,cex=1.5) #cex character enha
 #'
 #' @param z dataframe with list of genes (or similar) and metrics that can be used to rank the genes, 
 #' and indication of the geneset membership based on the gene color (column with colname="color"; 
-#' any color = member, "trnasparent" = non-member)
+#' any color = member, "transparent" = non-member)
 #' @param title title for the plot, typically the name/description of the gene set used for the 
 #' enrichment analysis
 #' @param metric parameter indicating the metric (column name) in dataframe z to be used to rank genes
@@ -262,6 +265,8 @@ ladder.plot <- function(z,title,metric,ladder_color,cex=1.5) #cex character enha
 
 ladder.plot.with.transparent.lines <- function(z,title,metric,ladder_color,cex=1.5) #cex character enhancement factor - scales the font size
 {  
+  # the key aspects may have been integrated into the main routine above 'ladder.plot'
+
   # for ladder plots 
   require(plotrix)
   #https://rdrr.io/cran/plotrix/man/ladderplot.html
@@ -293,7 +298,7 @@ ladder.plot.with.transparent.lines <- function(z,title,metric,ladder_color,cex=1
   
   title_file <- sub("^ +","",title)
   title_file = gsub(" ","_",title_file)
-  title_file = paste0(title_file,".",metric)
+  title_file = paste0(title_file,".",metric,".transparent")
   title2 = paste0(title,".",metric)
   colnames(y) = c("", "")
   #, "PC4.2.rank"] # ladder data
