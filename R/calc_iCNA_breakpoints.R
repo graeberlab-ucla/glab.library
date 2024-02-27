@@ -27,6 +27,12 @@
 #' @export
 #'
 
+# if input data follows the format described here https://software.broadinstitute.org/software/igv/SEG
+#   sep = "\t"
+#   Segment_Mean is column 6 (seg_mean_index = 6)
+# if using DepMap file CCLE_segment_cn.csv
+#   sep = ","
+#   Segment_Mean is column 5 (seg_mean_index = 5)
 
 calc.iCNA.breakpoints <- function(seg_filename, out_name, genome_size = F, normalize = T, write = T, not_yet_log_transformed = T, sep = "\t", seg_mean_index = 6){
 	seg_data <- read.table(seg_filename, sep = sep, stringsAsFactors = F, header = T)
