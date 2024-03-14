@@ -13,7 +13,7 @@ run.enrichR(topN)
 enricher.df
 }
 \description{
-runs a full enrichR analhysis
+runs a full enrichR analysis
 }
 \details{
 CRAN

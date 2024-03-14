@@ -20,4 +20,5 @@ Imports:
     ggrepel,
     mixOmics,
     RColorBrewer,
+    rgl,
     vegan

@@ -3,6 +3,7 @@
 #' Plots PCA from scores file (output of PCA_from_file)
 #'
 #' plot_pca_paint_gene differs from plot_pca in that it uses gradient coloring of points based on the expression values of a gene
+#' plot_pca_paint_gene_repel uses geom_text_repel
 #'
 #' @param file File containing scores matrix
 #' @param info.name Vector of sample names
@@ -19,6 +20,7 @@
 #'
 #' @import ggplot2
 #' @import ggpubr
+#' @import ggrepel
 #' @import vegan
 #' @import RColorBrewer
 #'
@@ -54,22 +56,13 @@
 # file = "melanoma.geneexp_prcomp_scores.txt"
 # file = "melanoma.geneexp_modnames_prcomp_scores.txt"
 
-# plot_pca_paint_gene("SCLC.subset_rsem_genes_upper_norm_counts_coding_log2_prcomp_scores.txt", gene = "IGF2BP3", human.info$sample, human.info$type, labels = F, ellipse = F, conf = 0.8, title = "PCA")
-# file = "SCLC.subset_rsem_genes_upper_norm_counts_coding_log2_prcomp_scores.txt";
-#                     gene = "IGFBP5"; info.name = human.info$sample; info.type=human.info$type; labels = F; ellipse = F; conf = 0.8; title = "PCA"
-#                     PCx="PC1"; PCy="PC2"; sDev_file_exists = TRUE
-# gene = "ASCL1";
-
-# file = proj_name
-
-
 #plot_pca_paint_gene = function(file, info.name, info.type, gene = "JUN", title = "", labels = TRUE, PCx="PC1", PCy="PC2", ellipse = F, conf = 0.95, density=F,
 #                               fliph = F, flipv = F){
-plot_pca_paint_gene = function(file, gene = "JUN", title = "", labels = TRUE, PCx="PC1", PCy="PC2", ellipse = F, conf = 0.95, density=F,
+plot_pca_paint_gene_repel = function(file, gene = "JUN", title = "", labels = TRUE, PCx="PC1", PCy="PC2", ellipse = F, conf = 0.95, density=F,
                                  fliph = F, flipv = F, sDev_file_exists = TRUE){
     #Input: PCA scores file to be ploted
   ##process pca output and adds groupings
-  require(ggplot2);require(ggpubr)
+  require(ggplot2);require(ggpubr);require(ggrepel)
   require(vegan)
   require(RColorBrewer)
   title = paste0(title," ",gene)
@@ -122,7 +115,7 @@ plot_pca_paint_gene = function(file, gene = "JUN", title = "", labels = TRUE, PC
          x = paste0(PCx," (", sdev$pve[match(PCx, rownames(sdev))], "%)"),
          y = paste0(PCy," (", sdev$pve[match(PCy, rownames(sdev))], "%)"))+
     theme_bw(base_size=18)+
-    if(labels==TRUE){geom_text(data = table, mapping = aes(label = Score), check_overlap = TRUE, size = 3)}
+    if(labels==TRUE){geom_text_repel(data = table, mapping = aes(label = Score), check_overlap = TRUE, size = 3)}
 
   if(ellipse==TRUE){
     plot(table[,c(PCx, PCy)], main=title)

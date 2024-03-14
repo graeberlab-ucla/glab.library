@@ -1,12 +1,13 @@
-#' Plot PCA Paint Crispr
+#' Plot PCA Gradient Fill
 #' 
 #' Plots PCA from scores file (output of PCA_from_file)
 #' 
-#' plot_pca_paint_gene differs from plot_pca in that it uses gradient coloring of points based on the expression values of a gene
+#' plot_pca_gradient_fill differs from plot_pca in that it uses gradient-based coloring of points
 #' 
 #' @param file File containing scores matrix
 #' @param info.name Vector of sample names
 #' @param info.type Vector of sample types in the same order
+#' @param info.color Vector to be used for gradient fill of plot points, with sample types in the same order
 #' @param title Title of the plot
 #' @param labels default=T
 #' @param PCx,PCy PCs to display
@@ -17,69 +18,23 @@
 #' 
 # @importFrom ggplot2 ggplot aes aes_string element_rect element_text geom_point geom_text labs margin theme theme_bw
 #' 
-#' @import ggplot2
-#' @import ggpubr
-#' @import vegan
-#' @import RColorBrewer
-#' 
 #' @export
 #' 
-
-# file = "TOIL_TCGA_UVM_norm_protein.coding_log_non.zero_prcomp_scores.txt"
-# info.name = human.info$sample.short3
-# info.type = human.info$BAP1.Altered
-# gene = "JUN"
-# PCx = "PC1"
-# PCy = "PC2"
-# labels=F
-# title=""
-
-# file = "UVM_cell_lines_Kim_rsem_genes_upper_norm_counts_protein.coding_log_prcomp_scores.txt"
-# gene = "CGAS"
-# PCx = "PC1"
-# PCy = "PC2"
-# labels=F
-# title=""
-# setwd("/Users/tgraeber/Dropbox/glab/collab f/Kim Paraiso/PCA of UVM RNAseq/")
-
-# file = "melanoma.geneexp_prcomp_scores.txt"
-# file = "melanoma.geneexp_modnames_prcomp_scores.txt"
-
-#plot_pca_paint_gene = function(file, info.name, info.type, gene = "JUN", title = "", labels = TRUE, PCx="PC1", PCy="PC2", ellipse = F, conf = 0.95, density=F,
-#                               fliph = F, flipv = F){  
-plot_pca_paint_crispr = function(file, gene = "JUN", title = "", labels = TRUE, PCx="PC1", PCy="PC2", ellipse = F, conf = 0.95, density=F,
-                                 fliph = F, flipv = F, crispr.file.extra.string = ""){  
-    #Input: PCA scores file to be ploted
+plot_pca_gradient_fill_missingGrey90 = function(file, info.name, info.type, info.color, title = "", labels = TRUE, PCx="PC1", PCy="PC2", ellipse = F, conf = 0.95, density=F,
+                    fliph = F, flipv = F){  
+  #Input: PCA scores file to be ploted
   ##process pca output and adds groupings
-  require(ggplot2)
-  require(ggpubr)
+  require(ggplot2);require(ggpubr)
   require(vegan)
   require(RColorBrewer)
-  title = paste0(title," ",gene," (Crispr)")
   table <- read.table(file, header = TRUE)
-  #table$type = info.type[match(table$Score, info.name)]
-  #table$color = info.color[match(table$Score, info.name)]
-  
-  file.crispr = gsub("_prcomp_scores", "", file) 
-  file.crispr = gsub("geneexp", paste0("crispr",crispr.file.extra.string), file.crispr) 
-  table.loadings.t = read.delim(file.crispr, header = FALSE, sep="\t")
-  table.loadings.t2 <- rbind(table.loadings.t[1,], table.loadings.t[table.loadings.t$V1 == gene,])
-  table.loadings <- as.data.frame(t(table.loadings.t2))
-  colnames(table.loadings) <- c("sample", "color")
-  table.loadings <- table.loadings[-1,]
-  
-  table = merge(table, table.loadings, by.x="Score", by.y="sample")
-  
+  table$type = info.type[match(table$Score, info.name)]
+  table$color = info.color[match(table$Score, info.name)]
   if (fliph==T){table[,PCx] = table[,PCx]*-1}
   if (flipv==T){table[,PCy] = table[,PCy]*-1}
   
-  table$color <- as.numeric(as.character(table$color))
-  class(table$color)
-  class(table)
   min = min(table$color)
   max = max(table$color)
-#  min = min(as.numeric(as.matrix(table$color)))
-#  max = max(as.numeric(as.matrix(table$color)))
   
   colorpalette="RdYlBu"
   #colorpalette="RdBu"
@@ -89,18 +44,22 @@ plot_pca_paint_crispr = function(file, gene = "JUN", title = "", labels = TRUE, 
   sdev$pve = unlist(round(sdev$var/sum(sdev$var) * 100, digits = 2))
   rownames(sdev) = paste0("PC",seq(1,nrow(sdev)))
   
+  
   #pcx.y <- ggplot(table, aes_string(x=PCx,y=PCy)) +geom_point(size = I(3), aes(color = factor(type))) +
-  pcx.y <- ggplot(table, aes_string(x=PCx,y=PCy)) +geom_point(size = I(3), aes(fill = color), colour="black",pch=21) +
-    scale_fill_gradientn("",colours=c(rev(brewer.pal(9,colorpalette))),limits=c(min,max)) +
+  
+  #pcx.y <- ggplot(table, aes_string(x=PCx,y=PCy)) +geom_point(size = I(3), aes(fill = color), colour="black",pch=21) +
+  pcx.y <- ggplot(data = table, aes_string(x=PCx,y=PCy)) +geom_point(size = I(3), aes(fill = color), colour="black",pch=21) +
+    scale_fill_gradientn("",colours=c(rev(brewer.pal(9,colorpalette))),limits=c(min,max), na.value = "grey90") +
           theme(legend.position="right",plot.title=element_text(size=30),legend.text=element_text(size=22),
           legend.title=element_text(size=20),axis.title=element_text(size=30),legend.background = element_rect(),
           axis.text.x = element_text(margin = margin(b=-2)),axis.text.y = element_text(margin = margin(l=-14)))+
-    guides(color=guide_legend(title=gene))+
+    guides(color=guide_legend(title="Type"))+
     labs(title = title, 
          x = paste0(PCx," (", sdev$pve[match(PCx, rownames(sdev))], "%)"),
          y = paste0(PCy," (", sdev$pve[match(PCy, rownames(sdev))], "%)"))+
     theme_bw(base_size=18)+
     if(labels==TRUE){geom_text(data = table, mapping = aes(label = Score), check_overlap = TRUE, size = 3)}
+  
   
   if(ellipse==TRUE){
     plot(table[,c(PCx, PCy)], main=title)
