@@ -48,7 +48,7 @@
 #plot_pca_paint_gene = function(file, info.name, info.type, gene = "JUN", title = "", labels = TRUE, PCx="PC1", PCy="PC2", ellipse = F, conf = 0.95, density=F,
 #                               fliph = F, flipv = F){  
 plot_pca_paint_crispr = function(file, gene = "JUN", title = "", labels = TRUE, PCx="PC1", PCy="PC2", ellipse = F, conf = 0.95, density=F,
-                                 fliph = F, flipv = F){  
+                                 fliph = F, flipv = F, crispr.file.extra.string = ""){  
     #Input: PCA scores file to be ploted
   ##process pca output and adds groupings
   require(ggplot2)
@@ -61,7 +61,7 @@ plot_pca_paint_crispr = function(file, gene = "JUN", title = "", labels = TRUE, 
   #table$color = info.color[match(table$Score, info.name)]
   
   file.crispr = gsub("_prcomp_scores", "", file) 
-  file.crispr = gsub("geneexp", "crispr", file.crispr) 
+  file.crispr = gsub("geneexp", paste0("crispr",crispr.file.extra.string), file.crispr) 
   table.loadings.t = read.delim(file.crispr, header = FALSE, sep="\t")
   table.loadings.t2 <- rbind(table.loadings.t[1,], table.loadings.t[table.loadings.t$V1 == gene,])
   table.loadings <- as.data.frame(t(table.loadings.t2))

@@ -15,7 +15,8 @@ plot_pca_paint_crispr(
   conf = 0.95,
   density = F,
   fliph = F,
-  flipv = F
+  flipv = F,
+  crispr.file.extra.string = ""
 )
 }
 \arguments{

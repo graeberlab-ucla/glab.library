@@ -54,6 +54,15 @@
 # file = "melanoma.geneexp_prcomp_scores.txt"
 # file = "melanoma.geneexp_modnames_prcomp_scores.txt"
 
+# plot_pca_paint_gene("SCLC.subset_rsem_genes_upper_norm_counts_coding_log2_prcomp_scores.txt", gene = "IGF2BP3", human.info$sample, human.info$type, labels = F, ellipse = F, conf = 0.8, title = "PCA")
+# file = "SCLC.subset_rsem_genes_upper_norm_counts_coding_log2_prcomp_scores.txt";
+#                     gene = "IGFBP5"; info.name = human.info$sample; info.type=human.info$type; labels = F; ellipse = F; conf = 0.8; title = "PCA"
+#                     PCx="PC1"; PCy="PC2"; sDev_file_exists = TRUE
+# gene = "ASCL1";
+
+# file = proj_name
+
+
 #plot_pca_paint_gene = function(file, info.name, info.type, gene = "JUN", title = "", labels = TRUE, PCx="PC1", PCy="PC2", ellipse = F, conf = 0.95, density=F,
 #                               fliph = F, flipv = F){
 plot_pca_paint_gene = function(file, gene = "JUN", title = "", labels = TRUE, PCx="PC1", PCy="PC2", ellipse = F, conf = 0.95, density=F,

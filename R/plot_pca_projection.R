@@ -53,7 +53,7 @@ plot_pca_projection = function(file, rotated.file, info.name, info.type, info.na
             guides(color=guide_legend(title="Projected"), shape=guide_legend(title="PC"))+
             labs(title = title)+
             theme_bw(base_size=18)+
-            if(labels==TRUE){geom_text(mapping = aes(label = projected_data.reduced$Sample), check_overlap = TRUE, size = 3)}
+            if(labels==TRUE){geom_text(mapping = aes(label = Sample), check_overlap = TRUE, size = 3)}
   
   # pcx.y <- pcx.y +geom_point(data=pc.scores.reduced, aes_string(x=PCx,y=PCy)) +geom_point(size = I(2), aes(color = factor(type))) +
   #   theme(legend.position="right",plot.title=element_text(size=30),legend.text=element_text(size=22),

@@ -51,6 +51,10 @@ PCA_from_file=function(file,center=TRUE,scale=FALSE, fread = FALSE) {
 
   }
 
+  #keep max 100 PC scores and loadings
+  pca_scores = pca_scores[,1:min(101:ncol(pca_scores))]
+  pca_loadings = pca_loadings[,1:min(101:ncol(pca_loadings))]
+
   #save data
   name=sub(".txt","",file)
   savename=paste(name,"_prcomp_scores.txt",sep='');
