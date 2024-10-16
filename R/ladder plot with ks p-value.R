@@ -24,44 +24,44 @@
 
 ######### ladder plots ######
 
-if (0) {
-library(dplyr)
-
-ladder_color = "darkorange"
-  
-setwd("/Users/tgraeber/Dropbox/collab/Tian-Tom/FANC_crispr_RB/")
-FANC_crispr_RB = read.delim(file = "FANC_crispr_RB.txt", sep = "\t", stringsAsFactors = F)
-# names(FANC_crispr_RB)[1:10]
-FANC_crispr_RB.tibble = as_tibble(FANC_crispr_RB)
-
-# logic: the logical value used to determine ladder rungs (e.g. samples with a certain characteristic, or genes in a geneset)
-logic = "FANC_LOF" 
-
-# metric: the value used to rank order the samples or genes
-if (1) {
-  metric = "RB_loss_zscore_448"
-
-} else {
-  metric = "FANCE"
-  metric = "FANCF"
-  metric = "FANCC"
-  metric = "RFWD3"
-  metric = "SLX4"
-  metric = "ERCC4"
-  
-} 
-
-title = paste(metric,logic)
-FANC_crispr_RB.tibble.ladder <- FANC_crispr_RB.tibble %>% dplyr::select(sample,any_of(c(metric,logic)))
-FANC_crispr_RB.tibble.ladder$color <- ifelse(FANC_crispr_RB.tibble.ladder$FANC_LOF, ladder_color, "transparent")
-
-ladder.plot(z = FANC_crispr_RB.tibble.ladder, title = title, metric = metric, ladder_color = ladder_color, cex=1.5, latexpdf_flag=0)
-#ladder.plot(z = FANC_crispr_RB.tibble.ladder, title = title, metric = metric, ladder_color = ladder_color, cex=1.5, latexpdf_flag=1)
-
-# z=FANC_crispr_RB.tibble.ladder; metric = "RB_loss_zscore_448"; cex=1.5
-
-}
-
+# if (0) {
+# library(dplyr)
+# 
+# ladder_color = "darkorange"
+#   
+# setwd("/Users/tgraeber/Dropbox/collab/Tian-Tom/FANC_crispr_RB/")
+# FANC_crispr_RB = read.delim(file = "FANC_crispr_RB.txt", sep = "\t", stringsAsFactors = F)
+# # names(FANC_crispr_RB)[1:10]
+# FANC_crispr_RB.tibble = as_tibble(FANC_crispr_RB)
+# 
+# # logic: the logical value used to determine ladder rungs (e.g. samples with a certain characteristic, or genes in a geneset)
+# logic = "FANC_LOF" 
+# 
+# # metric: the value used to rank order the samples or genes
+# if (1) {
+#   metric = "RB_loss_zscore_448"
+# 
+# } else {
+#   metric = "FANCE"
+#   metric = "FANCF"
+#   metric = "FANCC"
+#   metric = "RFWD3"
+#   metric = "SLX4"
+#   metric = "ERCC4"
+#   
+# } 
+# 
+# title = paste(metric,logic)
+# FANC_crispr_RB.tibble.ladder <- FANC_crispr_RB.tibble %>% dplyr::select(sample,any_of(c(metric,logic)))
+# FANC_crispr_RB.tibble.ladder$color <- ifelse(FANC_crispr_RB.tibble.ladder$FANC_LOF, ladder_color, "transparent")
+# 
+# ladder.plot(z = FANC_crispr_RB.tibble.ladder, title = title, metric = metric, ladder_color = ladder_color, cex=1.5, latexpdf_flag=0)
+# #ladder.plot(z = FANC_crispr_RB.tibble.ladder, title = title, metric = metric, ladder_color = ladder_color, cex=1.5, latexpdf_flag=1)
+# 
+# # z=FANC_crispr_RB.tibble.ladder; metric = "RB_loss_zscore_448"; cex=1.5
+# 
+# }
+# 
 
 
 ladder.plot <- function(z,title,metric,ladder_color,cex=1.5,latexpdf_flag = 0) #cex character enhancement factor - scales the font size
