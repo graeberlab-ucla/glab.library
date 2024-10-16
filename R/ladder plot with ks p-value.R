@@ -263,171 +263,171 @@ ladder.plot <- function(z,title,metric,ladder_color,cex=1.5) #cex character enha
 #' @examples provided below the functions, at the end of the file
 #' 
 
-ladder.plot.with.transparent.lines <- function(z,title,metric,ladder_color,cex=1.5) #cex character enhancement factor - scales the font size
-{  
-  # the key aspects may have been integrated into the main routine above 'ladder.plot'
-
-  # for ladder plots 
-  require(plotrix)
-  #https://rdrr.io/cran/plotrix/man/ladderplot.html
-  require(MASS)
-  require(latexpdf)
-  require(wrapr)  # install.packages("wrapr")
-  
-  set.seed(5)
-  
-  string = paste0(metric,".rank")
-  string.reverse = paste0(metric,".rank.reverse")
-  
-  z[string] = rank(z[metric], ties.method = "random")
-  z[string.reverse] = rank(-z[metric], ties.method = "random")
-  
-  y <- as.data.frame(z[,colnames(z) == string]) # | colnames(z) == "PC4.rank")]) 
-  colnames(y) <- "temp1"
-  y$temp2 = y$temp1
-  colnames(y) <- c(string, string)
-  
-  y2 <- as.data.frame(z[,(colnames(z) == string.reverse | colnames(z) == "gene" | colnames(z) == "NAME" | colnames(z) == "id" | colnames(z) == "color")]) 
-  y2 <- y2[y2$color == ladder_color,c(1,3)]
-  #y2 <- y2[order(y2$PC1.rank.reverse),]
-  #y2 <- y2[order(y2[string.reverse]),]
-  y2 <- y2[wrapr::orderv(y2[string.reverse]),]
-  
-  title <- gsub("^\\^","",title)
-  title <- gsub("[\\^\\$\\|\\(\\)\\/\\\\]",".",title)
-  
-  title_file <- sub("^ +","",title)
-  title_file = gsub(" ","_",title_file)
-  title_file = paste0(title_file,".",metric,".transparent")
-  title2 = paste0(title,".",metric)
-  colnames(y) = c("", "")
-  #, "PC4.2.rank"] # ladder data
-  col = z[,"color"] # coloring key
-  
-  #ks test
-  # x_ks=z[z$color == ladder_color,string]
-  # y_ks=z[z$color != ladder_color,string]
-  x_ks=as.numeric(unlist(z[z$color == ladder_color,string]))
-  y_ks=as.numeric(unlist(z[z$color != ladder_color,string]))
-  
-  
-  
-  #ks.test.2 <- function (x, y, ..., alternative = c("two.sided", "less", "greater"), exact = NULL, maxCombSize=10000) 
-  
-  #ks_pval <- ks.test.2(x_ks,y_ks,alternative = "two.sided")
-  #ks_pval <- ks.test.2(x_ks,y_ks,alternative = "less")
-  ks_test_gt <- ks.test.2(x_ks,y_ks,alternative = "greater")
-  ks_test_lt <- ks.test.2(x_ks,y_ks,alternative = "less")
-  
-  #ks_pval = ks_test$p.value
-  ks_pval = min(ks_test_gt$p.value, ks_test_lt$p.value)
-  dir = "enriched at top"
-  if (ks_pval == ks_test_gt$p.value) {
-    dir = "enriched at bottom"
-  }
-  
-  ks_pval_print = format(ks_pval, digits = 2)
-  
-  y3 <- as.data.frame(list("(nominal ks p-value", 0))
-  colnames(y3) <- colnames(y2)
-  y4 <- as.data.frame(list("(max", paste0(max(z[,string.reverse]),")")))
-  colnames(y4) <- colnames(y2)
-  y3 <- rbind(y3,y2,y4)
-  y3[1,2] = paste0(ks_pval_print," (",dir,"))")
-  #y3[1,dim(y3)[1]+1] = "(max"
-  #y3[2,dim(y3)[1]] = max(z[,string.reverse])
-  #y3
-  
-  #ladder_rplot myocyte_tca.PC1
-  #write gene list
-  file2 <- paste0("ladder_rplot ",title_file," gene_list.txt")
-  write.table(y3,file2,col.names=T,row.names=F,quote=F)
-  
-  #grepl(pattern, x, ignore.case = FALSE, perl = FALSE,
-  #      fixed = FALSE, useBytes = FALSE)
-  
-  if (0) { #original template code
-    y <- z[,1:2] # ladder data
-    col = z[,3] # coloring key
-    col[col==0] <- 'grey'
-    col[col==1] <- 'darkorange'
-    col[col==2] <- 'dodgerblue3'
-    #col
-    #ladderplot(y, pch=NA)
-  }
-  
-  parcoord(y, lty=1, lwd=2, col)
-  mtext(paste0(title_file), side=3, line=2, cex = cex)
-  mtext("up in signature", side=3, cex = cex)
-  mtext("dn in signature", side=1, line = 1, cex = cex)
-  mtext(paste0("nominal ks p-val = ",ks_pval_print), side=1, line=3, cex = cex)
-  mtext(dir, side=1, line=4, cex = cex)
-  #mtext("Magic function1", side=1, line=3)
-  #mtext("Magic function2", side=2)
-  #mtext("Magic function3", side=3)
-  #mtext("Magic function4", side=4)
-  
-  if (1) { #print out png
-    
-    #ladder plot
-    # 1. Open png file
-    png(paste0("ladder_rplot ",title_file,".png"), width = 300, height = 1000)
-    
-    # 2. Create the plot
-    parcoord(y, lty=1, lwd=4, col)
-    mtext(paste0(title_file), side=3, line=2, cex = cex)
-    mtext("up in signature", side=3, cex = cex)
-    mtext("dn in signature", side=1, line = 1, cex = cex)
-    mtext(paste0("nominal ks p-val = ",ks_pval_print), side=1, line=3, cex = cex)
-    mtext(dir, side=1, line=4, cex = cex)
-    
-    # 3. Close the file
-    dev.off()
-    
-    #gene list
-    ##need to fix, currently prints onto a dark background
-    #stemname = paste0("ladder_rplot_",title_file,"_gene_list")
-    #as.png(y2, stem = stemname)
-    
-    
-  }
-  
-  if (1) { #print out pdf
-    
-    #ladder plot
-    if (0) { #need to adjust page height and width
-      
-      # 1. Open pdf file
-      pdf(paste0("ladder_rplot ",title_file,".pdf")) #, width = 300, height = 1000)
-      
-      # 2. Create the plot
-      parcoord(y, lty=1, lwd=4, col)
-      dev.off()
-      
-      #library(gridExtra)
-      #library(grid)
-      
-      #grid.newpage()
-      #grid.table(y2, rows = NULL) #, show.rownames = FALSE)
-      #grid.newpage()
-    }
-    
-    #gene list
-    
-    #library(latexpdf)
-    #install.packages("latexpdf")
-    #pdf(paste0("ladder_rplot ",title_file," gene_list.pdf")) #, width = 300, height = 1000)
-    stemname = paste0("ladder_rplot_",title_file,"_gene_list")
-    
-    #stemname = gsub(" ","_",stemname)
-    
-    as.pdf(y3, stem = stemname)
-    #dev.off()
-    
-    
-  }
-  
-}
+# ladder.plot.with.transparent.lines <- function(z,title,metric,ladder_color,cex=1.5) #cex character enhancement factor - scales the font size
+# {  
+#   # the key aspects may have been integrated into the main routine above 'ladder.plot'
+# 
+#   # for ladder plots 
+#   require(plotrix)
+#   #https://rdrr.io/cran/plotrix/man/ladderplot.html
+#   require(MASS)
+#   require(latexpdf)
+#   require(wrapr)  # install.packages("wrapr")
+#   
+#   set.seed(5)
+#   
+#   string = paste0(metric,".rank")
+#   string.reverse = paste0(metric,".rank.reverse")
+#   
+#   z[string] = rank(z[metric], ties.method = "random")
+#   z[string.reverse] = rank(-z[metric], ties.method = "random")
+#   
+#   y <- as.data.frame(z[,colnames(z) == string]) # | colnames(z) == "PC4.rank")]) 
+#   colnames(y) <- "temp1"
+#   y$temp2 = y$temp1
+#   colnames(y) <- c(string, string)
+#   
+#   y2 <- as.data.frame(z[,(colnames(z) == string.reverse | colnames(z) == "gene" | colnames(z) == "NAME" | colnames(z) == "id" | colnames(z) == "color")]) 
+#   y2 <- y2[y2$color == ladder_color,c(1,3)]
+#   #y2 <- y2[order(y2$PC1.rank.reverse),]
+#   #y2 <- y2[order(y2[string.reverse]),]
+#   y2 <- y2[wrapr::orderv(y2[string.reverse]),]
+#   
+#   title <- gsub("^\\^","",title)
+#   title <- gsub("[\\^\\$\\|\\(\\)\\/\\\\]",".",title)
+#   
+#   title_file <- sub("^ +","",title)
+#   title_file = gsub(" ","_",title_file)
+#   title_file = paste0(title_file,".",metric,".transparent")
+#   title2 = paste0(title,".",metric)
+#   colnames(y) = c("", "")
+#   #, "PC4.2.rank"] # ladder data
+#   col = z[,"color"] # coloring key
+#   
+#   #ks test
+#   # x_ks=z[z$color == ladder_color,string]
+#   # y_ks=z[z$color != ladder_color,string]
+#   x_ks=as.numeric(unlist(z[z$color == ladder_color,string]))
+#   y_ks=as.numeric(unlist(z[z$color != ladder_color,string]))
+#   
+#   
+#   
+#   #ks.test.2 <- function (x, y, ..., alternative = c("two.sided", "less", "greater"), exact = NULL, maxCombSize=10000) 
+#   
+#   #ks_pval <- ks.test.2(x_ks,y_ks,alternative = "two.sided")
+#   #ks_pval <- ks.test.2(x_ks,y_ks,alternative = "less")
+#   ks_test_gt <- ks.test.2(x_ks,y_ks,alternative = "greater")
+#   ks_test_lt <- ks.test.2(x_ks,y_ks,alternative = "less")
+#   
+#   #ks_pval = ks_test$p.value
+#   ks_pval = min(ks_test_gt$p.value, ks_test_lt$p.value)
+#   dir = "enriched at top"
+#   if (ks_pval == ks_test_gt$p.value) {
+#     dir = "enriched at bottom"
+#   }
+#   
+#   ks_pval_print = format(ks_pval, digits = 2)
+#   
+#   y3 <- as.data.frame(list("(nominal ks p-value", 0))
+#   colnames(y3) <- colnames(y2)
+#   y4 <- as.data.frame(list("(max", paste0(max(z[,string.reverse]),")")))
+#   colnames(y4) <- colnames(y2)
+#   y3 <- rbind(y3,y2,y4)
+#   y3[1,2] = paste0(ks_pval_print," (",dir,"))")
+#   #y3[1,dim(y3)[1]+1] = "(max"
+#   #y3[2,dim(y3)[1]] = max(z[,string.reverse])
+#   #y3
+#   
+#   #ladder_rplot myocyte_tca.PC1
+#   #write gene list
+#   file2 <- paste0("ladder_rplot ",title_file," gene_list.txt")
+#   write.table(y3,file2,col.names=T,row.names=F,quote=F)
+#   
+#   #grepl(pattern, x, ignore.case = FALSE, perl = FALSE,
+#   #      fixed = FALSE, useBytes = FALSE)
+#   
+#   if (0) { #original template code
+#     y <- z[,1:2] # ladder data
+#     col = z[,3] # coloring key
+#     col[col==0] <- 'grey'
+#     col[col==1] <- 'darkorange'
+#     col[col==2] <- 'dodgerblue3'
+#     #col
+#     #ladderplot(y, pch=NA)
+#   }
+#   
+#   parcoord(y, lty=1, lwd=2, col)
+#   mtext(paste0(title_file), side=3, line=2, cex = cex)
+#   mtext("up in signature", side=3, cex = cex)
+#   mtext("dn in signature", side=1, line = 1, cex = cex)
+#   mtext(paste0("nominal ks p-val = ",ks_pval_print), side=1, line=3, cex = cex)
+#   mtext(dir, side=1, line=4, cex = cex)
+#   #mtext("Magic function1", side=1, line=3)
+#   #mtext("Magic function2", side=2)
+#   #mtext("Magic function3", side=3)
+#   #mtext("Magic function4", side=4)
+#   
+#   if (1) { #print out png
+#     
+#     #ladder plot
+#     # 1. Open png file
+#     png(paste0("ladder_rplot ",title_file,".png"), width = 300, height = 1000)
+#     
+#     # 2. Create the plot
+#     parcoord(y, lty=1, lwd=4, col)
+#     mtext(paste0(title_file), side=3, line=2, cex = cex)
+#     mtext("up in signature", side=3, cex = cex)
+#     mtext("dn in signature", side=1, line = 1, cex = cex)
+#     mtext(paste0("nominal ks p-val = ",ks_pval_print), side=1, line=3, cex = cex)
+#     mtext(dir, side=1, line=4, cex = cex)
+#     
+#     # 3. Close the file
+#     dev.off()
+#     
+#     #gene list
+#     ##need to fix, currently prints onto a dark background
+#     #stemname = paste0("ladder_rplot_",title_file,"_gene_list")
+#     #as.png(y2, stem = stemname)
+#     
+#     
+#   }
+#   
+#   if (1) { #print out pdf
+#     
+#     #ladder plot
+#     if (0) { #need to adjust page height and width
+#       
+#       # 1. Open pdf file
+#       pdf(paste0("ladder_rplot ",title_file,".pdf")) #, width = 300, height = 1000)
+#       
+#       # 2. Create the plot
+#       parcoord(y, lty=1, lwd=4, col)
+#       dev.off()
+#       
+#       #library(gridExtra)
+#       #library(grid)
+#       
+#       #grid.newpage()
+#       #grid.table(y2, rows = NULL) #, show.rownames = FALSE)
+#       #grid.newpage()
+#     }
+#     
+#     #gene list
+#     
+#     #library(latexpdf)
+#     #install.packages("latexpdf")
+#     #pdf(paste0("ladder_rplot ",title_file," gene_list.pdf")) #, width = 300, height = 1000)
+#     stemname = paste0("ladder_rplot_",title_file,"_gene_list")
+#     
+#     #stemname = gsub(" ","_",stemname)
+#     
+#     as.pdf(y3, stem = stemname)
+#     #dev.off()
+#     
+#     
+#   }
+#   
+# }
 
 #from https://github.com/franapoli/signed-ks-test/blob/master/signed-ks-test.R
 #' @export
