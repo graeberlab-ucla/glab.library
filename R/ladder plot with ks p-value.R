@@ -6,7 +6,9 @@
 #' @param title title for the plot, typically the name/description of the gene set used for the 
 #' enrichment analysis
 #' @param metric parameter indicating the metric (column name) in dataframe z to be used to rank genes
-#' @param cex character enhancement factor - scales the foint size
+#' @param cex character enhancement factor - scales the font size
+#' @param latexpdf_flag used to create a formated pdf version of the genes or samples that make up the ladder rungs
+#'                      only turn latexpdf_flag on if latexpdf is installed and working
 #'
 #' @return RVAL
 #' @export
@@ -16,62 +18,87 @@
 
 
 
-# z = crispr.tibble.ladder
-# title = description.hm
-# metric = "distance"
-# #ladder_color = "dodgerblue"
-# ladder_color = "darkorange"
-# cex = 1.5
-
-
-# parcoord(x, col = 1, lty = 1, var.label = FALSE, …)
-# Arguments
-# x           a matrix or data frame who columns represent variables. Missing values are allowed.
-# col         A vector of colours, recycled as necessary for each observation.
-# lty         A vector of line types, recycled as necessary for each observation.
-# var.label   If TRUE, each variable's axis is labelled with maximum and minimum values.
-# …           Further graphics parameters which are passed to matplot.
-
-
-
-
-# z = crispr.tibble.ladder.dmhsr
-# #title = paste0("dm_vs_hsr(directional)",description.hm)
-# title = "test"
-# metric = "distance"
-# ladder_color = "darkorange"
-# cex = 1.5
-
-
-
+#### use blocks above or below functions to run interactively ####
+# keep these blocks off (if (0)) to use script as a source file for loading the functions
 
 
 ######### ladder plots ######
-# metric = "PC4"     metric = "PC1"     z = z_myo
-# if (0) {
-#   #ladder.plot(z = crispr.tibble.ladder, title = description.hm, metric = "distance", ladder_color = ladder_color, cex=1.5)
-#   z = crispr.tibble.ladder; title = description.hm; metric = "distance"; ladder_color = ladder_color; cex=1.5
-# }
 
+if (0) {
+library(dplyr)
 
-ladder.plot <- function(z,title,metric,ladder_color,cex=1.5) #cex character enhancement factor - scales the font size
-{  
-  # for ladder plots 
-  require(plotrix)
-  #https://rdrr.io/cran/plotrix/man/ladderplot.html
-  require(MASS)
-  require(latexpdf)
-  require(wrapr)  # install.packages("wrapr")
-  require(dplyr)  
+ladder_color = "darkorange"
   
+setwd("/Users/tgraeber/Dropbox/collab/Tian-Tom/FANC_crispr_RB/")
+FANC_crispr_RB = read.delim(file = "FANC_crispr_RB.txt", sep = "\t", stringsAsFactors = F)
+# names(FANC_crispr_RB)[1:10]
+FANC_crispr_RB.tibble = as_tibble(FANC_crispr_RB)
+
+# logic: the logical value used to determine ladder rungs (e.g. samples with a certain characteristic, or genes in a geneset)
+logic = "FANC_LOF" 
+
+# metric: the value used to rank order the samples or genes
+if (1) {
+  metric = "RB_loss_zscore_448"
+
+} else {
+  metric = "FANCE"
+  metric = "FANCF"
+  metric = "FANCC"
+  metric = "RFWD3"
+  metric = "SLX4"
+  metric = "ERCC4"
+  
+} 
+
+title = paste(metric,logic)
+FANC_crispr_RB.tibble.ladder <- FANC_crispr_RB.tibble %>% dplyr::select(sample,any_of(c(metric,logic)))
+FANC_crispr_RB.tibble.ladder$color <- ifelse(FANC_crispr_RB.tibble.ladder$FANC_LOF, ladder_color, "transparent")
+
+ladder.plot(z = FANC_crispr_RB.tibble.ladder, title = title, metric = metric, ladder_color = ladder_color, cex=1.5, latexpdf_flag=0)
+#ladder.plot(z = FANC_crispr_RB.tibble.ladder, title = title, metric = metric, ladder_color = ladder_color, cex=1.5, latexpdf_flag=1)
+
+# z=FANC_crispr_RB.tibble.ladder; metric = "RB_loss_zscore_448"; cex=1.5
+
+}
+
+
+
+ladder.plot <- function(z,title,metric,ladder_color,cex=1.5,latexpdf_flag = 0) #cex character enhancement factor - scales the font size
+{  
+  
+  #latexpdf used to create a formated pdf version of the genes or samples that make up the ladder rungs
+  #only turn latexpdf_flag on if latexpdf is installed and working
+  
+  
+  # for ladder plots 
+  require(dplyr)
+  #https://rdrr.io/cran/plotrix/man/ladderplot.html
+  require(plotrix)
+  require(MASS)
+  #require(wrapr)  # install.packages("wrapr")  
+  ### latexpdf ###
+  # latexpdf: need additional installations on the computer, outside of R and tinytex 
+  # fot Mac seems best to install MacTeX.pkg https://www.tug.org/mactex/mactex-download.html 
+  if (latexpdf_flag) {
+    require(latexpdf)
+  }
+
   set.seed(5)
   
-  string = paste0(metric,".rank")
-  string.reverse = paste0(metric,".rank.reverse")
+  if(class(z)[1] != "tbl_df") {
+    z = as_tibble(z)
+  }
   
-  z[string] = rank(z[metric], ties.method = "random")
-  z[string.reverse] = rank(-z[metric], ties.method = "random")
-  
+  if (grepl(".rank",metric)) {
+    string = metric
+    string.reverse = paste0(metric,".reverse")
+  } else {
+    string = paste0(metric,".rank")
+    string.reverse = paste0(metric,".rank.reverse")
+    z[string] = rank(z[metric], ties.method = "random")
+    z[string.reverse] = rank(-z[metric], ties.method = "random")
+  }
   
   #z <- z[order(z[string]),]  
   z <- z %>% dplyr::arrange({{string}})
@@ -81,11 +108,12 @@ ladder.plot <- function(z,title,metric,ladder_color,cex=1.5) #cex character enha
   y$temp2 = y$temp1
   colnames(y) <- c(string, string)
   
-  y2 <- as.data.frame(z[,(colnames(z) == string.reverse | colnames(z) == "Drug name" | colnames(z) == "gene" | colnames(z) == "Gene" | colnames(z) == "NAME" | colnames(z) == "id" | colnames(z) == "color")]) 
+  y2 <- as.data.frame(z[,(colnames(z) == string.reverse | colnames(z) == "gene" | colnames(z) == "NAME" | colnames(z) == "sample" | colnames(z) == "id" | colnames(z) == "color")]) 
   y2 <- y2[y2$color == ladder_color,c(1,3)]
   #y2 <- y2[order(y2$PC1.rank.reverse),]
   #y2 <- y2[order(y2[string.reverse]),]
-  y2 <- y2[wrapr::orderv(y2[string.reverse]),]
+  #y2 <- y2[wrapr::orderv(y2[string.reverse]),]
+  y2 <- dplyr::arrange(y2, desc(string.reverse))
   
   title <- gsub("^\\^","",title)
   title <- gsub("[\\^\\$\\|\\(\\)\\/\\\\]",".",title)
@@ -97,22 +125,22 @@ ladder.plot <- function(z,title,metric,ladder_color,cex=1.5) #cex character enha
   colnames(y) = c("", "")
   #, "PC4.2.rank"] # ladder data
   col = z[,"color"] # coloring key
-  col = as.vector(col)
+  #col = as.vector(col)
   
   #ks test
-  # x_ks=z[z$color == ladder_color,string]
-  # y_ks=z[z$color != ladder_color,string]
-  x_ks=as.numeric(unlist(z[z$color == ladder_color,string]))
-  y_ks=as.numeric(unlist(z[z$color != ladder_color,string]))
-  
-  
+  x_ks=z[z$color == ladder_color,string]
+  y_ks=z[z$color != ladder_color,string]
+  # x_ks=as.numeric(unlist(z[z$color == ladder_color,string]))
+  # y_ks=as.numeric(unlist(z[z$color != ladder_color,string]))
   
   #ks.test.2 <- function (x, y, ..., alternative = c("two.sided", "less", "greater"), exact = NULL, maxCombSize=10000) 
   
   #ks_pval <- ks.test.2(x_ks,y_ks,alternative = "two.sided")
   #ks_pval <- ks.test.2(x_ks,y_ks,alternative = "less")
-  ks_test_gt <- ks.test.2(x_ks,y_ks,alternative = "greater")
-  ks_test_lt <- ks.test.2(x_ks,y_ks,alternative = "less")
+  #ks_test_gt <- ks.test.2(x_ks,y_ks,alternative = "greater")
+  #ks_test_lt <- ks.test.2(x_ks,y_ks,alternative = "less")
+  ks_test_gt <- ks.test.2(x_ks[[string]],y_ks[[string]],alternative = "greater")
+  ks_test_lt <- ks.test.2(x_ks[[string]],y_ks[[string]],alternative = "less")
   
   #ks_pval = ks_test$p.value
   ks_pval = min(ks_test_gt$p.value, ks_test_lt$p.value)
@@ -133,7 +161,6 @@ ladder.plot <- function(z,title,metric,ladder_color,cex=1.5) #cex character enha
   #y3[2,dim(y3)[1]] = max(z[,string.reverse])
   #y3
   
-  #ladder_rplot myocyte_tca.PC1
   #write gene list
   file2 <- paste0("ladder_rplot ",title_file," gene_list.txt")
   write.table(y3,file2,col.names=T,row.names=F,quote=F)
@@ -151,28 +178,30 @@ ladder.plot <- function(z,title,metric,ladder_color,cex=1.5) #cex character enha
     #ladderplot(y, pch=NA)
   }
   
-  y_lastrow = as.character(dim(y)[1])
-  #just keep the needed lines
+  # solution applied for the color vector, that was later re-worked to be solved by using col$color instead
+  # y_lastrow = as.character(dim(y)[1])
+  # #just keep the needed lines
+  # 
+  # #pre jul 4 2022 - perhaps needed changing to run on newer R version (4): 
+  # #y.abr <- y[col == ladder_color | rownames(y) == "1" | rownames(y) == y_lastrow,]
+  # test1 <- function(x) x==ladder_color
+  # indx <- sapply(col, test1)
+  # y.abr <- y[indx | rownames(y) == "1" | rownames(y) == y_lastrow,]
+  # 
+  # #col.abr <- as_tibble(col[col == ladder_color | rownames(y) == "1" | rownames(y) == y_lastrow,])
+  # 
+  # #pre jul 4 2022 - perhaps needed changing to run on newer R version (4): 
+  # #col.abr <- as_tibble(col[col == ladder_color | rownames(y) == "1" | rownames(y) == y_lastrow])
+  # col.abr <- as_tibble(unlist(col)[indx | rownames(y) == "1" | rownames(y) == y_lastrow])
+  # 
+  #  
+  # colnames(col.abr) <- "color"
+  # #col.abr$color = as.character(col.abr$color)
+  # col.abr = as.vector(col.abr$color)
   
-  #pre jul 4 2022 - perhaps needed changing to run on newer R version (4): 
-  #y.abr <- y[col == ladder_color | rownames(y) == "1" | rownames(y) == y_lastrow,]
-  test1 <- function(x) x==ladder_color
-  indx <- sapply(col, test1)
-  y.abr <- y[indx | rownames(y) == "1" | rownames(y) == y_lastrow,]
-  
-  #col.abr <- as_tibble(col[col == ladder_color | rownames(y) == "1" | rownames(y) == y_lastrow,])
-  
-  #pre jul 4 2022 - perhaps needed changing to run on newer R version (4): 
-  #col.abr <- as_tibble(col[col == ladder_color | rownames(y) == "1" | rownames(y) == y_lastrow])
-  col.abr <- as_tibble(unlist(col)[indx | rownames(y) == "1" | rownames(y) == y_lastrow])
-  
-    
-  colnames(col.abr) <- "color"
-  #col.abr$color = as.character(col.abr$color)
-  col.abr = as.vector(col.abr$color)
-  
-  #parcoord(y, lty=1, lwd=2, col)
-  parcoord(y.abr, lty=1, lwd=2, col.abr)
+  ##parcoord(y, lty=1, lwd=2, col)
+  #parcoord(y.abr, lty=1, lwd=2, col.abr)
+  parcoord(y, lty=1, lwd=2, col$color)
   mtext(paste0(title_file), side=3, line=2, cex = cex)
   mtext("up in signature", side=3, cex = cex)
   mtext("dn in signature", side=1, line = 1, cex = cex)
@@ -190,8 +219,9 @@ ladder.plot <- function(z,title,metric,ladder_color,cex=1.5) #cex character enha
     png(paste0("ladder_rplot ",title_file,".png"), width = 300, height = 1000)
     
     # 2. Create the plot
-    #parcoord(y, lty=1, lwd=4, col)
-    parcoord(y.abr, lty=1, lwd=2, col.abr)
+    ##parcoord(y, lty=1, lwd=4, col)
+    #parcoord(y.abr, lty=1, lwd=2, col.abr)
+    parcoord(y, lty=1, lwd=4, col$color)
     mtext(paste0(title_file), side=3, line=2, cex = cex)
     mtext("up in signature", side=3, cex = cex)
     mtext("dn in signature", side=1, line = 1, cex = cex)
@@ -209,17 +239,19 @@ ladder.plot <- function(z,title,metric,ladder_color,cex=1.5) #cex character enha
     
   }
   
-  if (1) { #print out pdf
+  if (latexpdf_flag) { #print out pdf
     
     #ladder plot
+    #replaced with png version above
     if (0) { #need to adjust page height and width
       
       # 1. Open pdf file
       pdf(paste0("ladder_rplot ",title_file,".pdf")) #, width = 300, height = 1000)
       
       # 2. Create the plot
-      #parcoord(y, lty=1, lwd=4, col)
-      parcoord(y.abr, lty=1, lwd=2, col.abr)
+      ##parcoord(y, lty=1, lwd=4, col)
+      #parcoord(y.abr, lty=1, lwd=2, col.abr)
+      parcoord(y, lty=1, lwd=4, col)
       dev.off()
       
       #library(gridExtra)
@@ -239,33 +271,39 @@ ladder.plot <- function(z,title,metric,ladder_color,cex=1.5) #cex character enha
     
     #stemname = gsub(" ","_",stemname)
     
-    as.pdf(y3, stem = stemname)
+    #as.pdf(y3, stem = stemname)
     #dev.off()
     
+    # need to escape special characters that latex may think are math or command symbols or similar
+    # https://tex.stackexchange.com/questions/52804/missing-inserted-inserted-text
+    y3.mod = y3
+    names(y3.mod) = gsub("_","\\\\_",names(y3.mod))
+    #names(y3.mod)
+    as.pdf(y3.mod, stem = stemname)
     
   }
   
 }
 
-#' ladder.plot.with.transparent.lines
-#'
-#' @param z dataframe with list of genes (or similar) and metrics that can be used to rank the genes, 
-#' and indication of the geneset membership based on the gene color (column with colname="color"; 
-#' any color = member, "transparent" = non-member)
-#' @param title title for the plot, typically the name/description of the gene set used for the 
-#' enrichment analysis
-#' @param metric parameter indicating the metric (column name) in dataframe z to be used to rank genes
-#' @param cex character enhancement factor - scales the foint size
-#'
-#' @return RVAL
-#' @export
-#'
-#' @examples provided below the functions, at the end of the file
-#' 
+# #' ladder.plot.with.transparent.lines
+# #'
+# #' @param z dataframe with list of genes (or similar) and metrics that can be used to rank the genes, 
+# #' and indication of the geneset membership based on the gene color (column with colname="color"; 
+# #' any color = member, "transparent" = non-member)
+# #' @param title title for the plot, typically the name/description of the gene set used for the 
+# #' enrichment analysis
+# #' @param metric parameter indicating the metric (column name) in dataframe z to be used to rank genes
+# #' @param cex character enhancement factor - scales the foint size
+# #'
+# #' @return RVAL
+# #' @export
+# #'
+# #' @examples provided below the functions, at the end of the file
+# #' 
 
 # ladder.plot.with.transparent.lines <- function(z,title,metric,ladder_color,cex=1.5) #cex character enhancement factor - scales the font size
 # {  
-#   # the key aspects may have been integrated into the main routine above 'ladder.plot'
+#   # OLDER:  the key aspects may have been integrated into the main routine above 'ladder.plot'
 # 
 #   # for ladder plots 
 #   require(plotrix)
@@ -430,8 +468,8 @@ ladder.plot <- function(z,title,metric,ladder_color,cex=1.5) #cex character enha
 # }
 
 #from https://github.com/franapoli/signed-ks-test/blob/master/signed-ks-test.R
-#' @export
-#' @rdname ladder.plot
+# #' @export
+# #' @rdname ladder.plot
 ks.test.2 <- function (x, y, ..., alternative = c("two.sided", "less", "greater"), exact = NULL, maxCombSize=10000) 
 {
   alternative <- match.arg(alternative)
@@ -558,9 +596,13 @@ ks.test.2 <- function (x, y, ..., alternative = c("two.sided", "less", "greater"
 }
 
 
-
-
-
+# parcoord(x, col = 1, lty = 1, var.label = FALSE, …)
+# Arguments
+# x           a matrix or data frame who columns represent variables. Missing values are allowed.
+# col         A vector of colours, recycled as necessary for each observation.
+# lty         A vector of line types, recycled as necessary for each observation.
+# var.label   If TRUE, each variable's axis is labelled with maximum and minimum values.
+# …           Further graphics parameters which are passed to matplot.
 
 ### parcoord examples
 # https://www.rdocumentation.org/packages/MASS/versions/7.3-54/topics/parcoord 
@@ -568,6 +610,149 @@ ks.test.2 <- function (x, y, ..., alternative = c("two.sided", "less", "greater"
 # 
 # ir <- rbind(iris3[,,1], iris3[,,2], iris3[,,3])
 # parcoord(log(ir)[, c(3, 4, 2, 1)], col = 1 + (0:149)%/%50)
+
+
+
+######### ladder plots - mouse tissue ######
+
+if (0) {
+
+  ladder_color = "darkorange"
+
+  if (0) {
+    pca_rot_4tissues_plus <- read.table(file = "./PCA/4tissues+_log2_rot_matrix.txt", header = T, sep = "\t", quote = "")
+    #write.table(pca_rot_4tissues_plus, file = paste0("./PCA/4tissues+_log2_rot_matrix.txt"), na = "", row.names = F, quote = F, sep = "\t")
+  }
+
+  z <- pca_rot_4tissues_plus
+  z <- z[!is.na(z$PC4),]
+  #z$PC4.rank = rank(z$PC4) #now done in the function
+  #z$PC4.rank.reverse = rank(-z$PC4)
+  
+  title = "mitochondrially encoded"
+  #title = "mitochondria"
+  z$color = ifelse(grepl(title, z$desc,ignore.case = TRUE, perl = TRUE),ladder_color,"transparent")
+  ladder.plot(z,title,"PC4",ladder_color,latexpdf_flag=1) #cex character enhancement factor - scales the foint size
+  
+  title = "tca manual"
+  regex = "^(Acly|Dld|Pcx|Pdha2|Pdk4|Dhtkd1|Ogdhl|Pdk2|Ogdh|Pck1|Pck2|Pdk1|Dlat|Idh2|Ireb2|Dlst|Sdhc|Sdha|Aco2|Suclg2|Idh3b|Idh3a|Idh3g|Cs|Mdh2|Csl|Sdhb|Pdha1|Aco1|Sdhaf2|Idh1|Pdhb|Fh1|Pdk3|Sucla2|Suclg1|Sdhd|Mdh1|Ndufs4)$"
+  z$color = ifelse(grepl(regex, z$gene,ignore.case = TRUE, perl = TRUE),ladder_color,"transparent")
+  length(z[z$color==ladder_color,1])
+  ladder.plot(z,title,"PC4",ladder_color,latexpdf_flag=1)
+
+}
+
+
+######### ladder plots - human myocytes ######
+
+if (0) {
+  
+  # setwd('/Users/tgraeber/Dropbox/glab/collab f/Arjun Deb/covid model/Cov2 RNAseq data/')
+
+  ladder_color = "dodgerblue"
+  
+  if (0) {
+    pca_myocyte_rot <- read.table(file = "./PCA/myocyte_log2_rot_matrix2.txt", header = T, sep = "\t", quote = "")
+  }
+  
+  z_myo <- pca_myocyte_rot
+  z_myo <- z_myo[!is.na(z_myo$PC1),]
+  z_myo$PC1.rank = rank(z_myo$PC1)
+  z_myo$PC2.rank = rank(z_myo$PC2)
+  z_myo$PC1.rank.reverse = rank(-z_myo$PC1)
+  z_myo$PC2.rank.reverse = rank(-z_myo$PC2)
+  
+  title = "mitochondrially encoded"
+  #title = "mitochondria"
+  z_myo$color = ifelse(grepl(title, z_myo$desc,ignore.case = TRUE, perl = TRUE),ladder_color,"transparent")
+  length(z_myo[z_myo$color==ladder_color,1])
+  ladder.plot(z_myo,title,"PC1",ladder_color,latexpdf_flag=1)
+  ladder.plot(z_myo,title,"PC2",ladder_color,latexpdf_flag=1)
+  
+  title = "tca manual"
+  regex = "^(SDHAF2|PCK1|PCK2|PDK4|PC|SUCLG2P2|ACLY|PDK3|PDHA2|SUCLA2|IDH3A|ACO1|OGDH|IDH1|SUCLG2|CS|SDHB|SDHA|DHTKD1|DLST|SDHD|IDH3G|SDHC|ACO2|MDH2|DLAT|FH|IDH3B|PDHB|SUCLG1|IDH2|PDHA1|PDK1|DLD|OGDHL|PDK2|MDH1)$"
+  z_myo$color = ifelse(grepl(regex, z_myo$gene,ignore.case = TRUE, perl = TRUE),ladder_color,"transparent")
+  ladder.plot(z_myo,title,"PC1",ladder_color,latexpdf_flag=1)
+  ladder.plot(z_myo,title,"PC2",ladder_color,latexpdf_flag=1)
+  
+}
+
+
+######### ladder plots - Stark U_ISGs ######
+
+if (0) {
+  
+  ladder_color = "dodgerblue"
+  
+  setwd("/Users/tgraeber/Dropbox/glab/collab f/song/M249 DM HSR CRISPR KO Screen/libraries A B - Oct 9 2020 set/temp/")
+  
+  if (0) {
+    #rank_data <- read.table(file = "/Users/tgraeber/Dropbox/glab/collab f/song/M249 DM HSR CRISPR KO Screen/libraries A B - Oct 9 2020 set/crispr.rna.out", header = T, sep = "\t", quote = "")
+    #rank_data <- read.delim(file = "/Users/tgraeber/Dropbox/glab/collab f/song/M249 DM HSR CRISPR KO Screen/libraries A B - Oct 9 2020 set/crispr.rna.out", header = T, sep = "\t", quote = "")
+    rank_data <- read.delim(file = "/Users/tgraeber/Dropbox/glab/collab f/song/M249 DM HSR CRISPR KO Screen/libraries A B - Oct 9 2020 set/crispr.rna.out")
+  }
+  
+  z <- rank_data
+  #z <- z[!is.na(z$PC1),]
+  #z$crispr.rna.sum.sum.rank
+  
+  title = "Stark U_ISGs"
+  regex = "^(BATF2|BIRC4BP|BST2|DDX58|DDX60|EPSTI1|G1P2|HERC5|HERC6|IFI27|IFI35|IFI44|IFI44L|IFIH1|IFIT1|IFIT3|IFITM1|IRF7|MX1|OAS1|OAS2|OAS3|OASL|PLSCR1|RARRES3|RTP4|STAT1|TMEM140|IRF7|FLJ20035)$"
+  z$color = ifelse(grepl(regex, z$id,ignore.case = TRUE, perl = TRUE),ladder_color,"transparent")
+  length(z[z$color==ladder_color,1])
+  ladder.plot(z,title,metric="crispr.rna.sum.sum.rank",ladder_color,latexpdf_flag=1) 
+  ladder.plot(z,title,"crispr.rna.diff.diff.rank",ladder_color,latexpdf_flag=1)
+  ladder.plot(z,title,"crispr.rna.sum.negsum.rank",ladder_color,latexpdf_flag=1)
+  ladder.plot(z,title,"crispr.rna.diff.negdiff.rank",ladder_color,latexpdf_flag=1)
+  
+  #table(z$color)
+}
+
+if (0) {
+  
+  ladder_color = "dodgerblue"
+  
+  if (0) {
+    rank_data <- read.delim(file = "/Users/tgraeber/Downloads/ranked_gene_list_na_pos_versus_na_neg_1567658506638.txt")
+    
+  }
+  
+  z <- rank_data
+  #z <- z[!is.na(z$PC1),]
+  #z$crispr.rna.sum.sum.rank
+  
+  title = "S100 UVM dediff"
+  regex = "^(S100)"
+  z$color = ifelse(grepl(regex, z$NAME,ignore.case = TRUE, perl = TRUE),ladder_color,"transparent")
+  length(z[z$color==ladder_color,1])
+  z$SCORE.dediff = -z$SCORE
+  metric = "RANK"
+  metric = "SCORE"
+  metric = "SCORE.dediff"
+  ladder.plot(z,title,metric,ladder_color,latexpdf_flag=1)
+  
+  #table(z$color)
+}
+
+######### ladder plots - other examples ###
+
+# metric = "PC4"     metric = "PC1"     z = z_myo
+# if (0) {
+#   #ladder.plot(z = crispr.tibble.ladder, title = description.hm, metric = "distance", ladder_color = ladder_color, cex=1.5)
+#   z = crispr.tibble.ladder; title = description.hm; metric = "distance"; ladder_color = ladder_color; cex=1.5
+# }
+
+# z = crispr.tibble.ladder; title = description.hm; metric = "distance"; ladder_color = ladder_color; cex=1.5
+
+# z = crispr.tibble.ladder.dmhsr; title = "test"; metric = "distance"; ladder_color = "darkorange"; cex = 1.5
+# #title = paste0("dm_vs_hsr(directional)",description.hm)
+
+# z = crispr.tibble.ladder
+# title = description.hm
+# metric = "distance"
+# #ladder_color = "dodgerblue"
+# ladder_color = "darkorange"
+# cex = 1.5
 
 
 
