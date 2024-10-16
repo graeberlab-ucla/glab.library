@@ -2,19 +2,9 @@
 % Please edit documentation in R/ladder plot with ks p-value.R
 \name{ladder.plot}
 \alias{ladder.plot}
-\alias{ks.test.2}
 \title{ladder plot with ks p-value}
 \usage{
-ladder.plot(z, title, metric, ladder_color, cex = 1.5)
-
-\method{ks.test}{`2`}(
-  x,
-  y,
-  ...,
-  alternative = c("two.sided", "less", "greater"),
-  exact = NULL,
-  maxCombSize = 10000
-)
+ladder.plot(z, title, metric, ladder_color, cex = 1.5, latexpdf_flag = 0)
 }
 \arguments{
 \item{z}{dataframe with list of genes (or similar) and metrics that can be used to rank the genes, 
@@ -26,7 +16,10 @@ enrichment analysis}
 
 \item{metric}{parameter indicating the metric (column name) in dataframe z to be used to rank genes}
 
-\item{cex}{character enhancement factor - scales the foint size}
+\item{cex}{character enhancement factor - scales the font size}
+
+\item{latexpdf_flag}{used to create a formated pdf version of the genes or samples that make up the ladder rungs
+only turn latexpdf_flag on if latexpdf is installed and working}
 }
 \value{
 RVAL
