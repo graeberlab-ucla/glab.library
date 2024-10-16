@@ -107,7 +107,7 @@ Now we will plot with both the PCA scores and labeling by sample (cancer) type. 
 glab.library::plot_pca(file = "Beltran_2016_rsem_genes_upper_norm_counts_coding_log2_prcomp_scores.txt",
          info.name = human.info$sample,
          info.type = human.info$type,
-         labels = T, ellipse = T, density = T,
+         labels = T, ellipse = F, density = T,
          title = "Beltran 2016 PCA Scores",
          PCx = "PC1", PCy = "PC2")
 ```
@@ -182,7 +182,7 @@ glab.library::plot_pca(
   file = "Beltran_2016_rsem_genes_upper_norm_counts_coding_log2_prcomp_scores_VARIMAX.txt",
   info.name = human.info$sample,
   info.type = human.info$type,
-  labels = T, ellipse = T,
+  labels = T, ellipse = F,
   title = "Beltran 2016 PCA Scores - Varimax",
 )
 
