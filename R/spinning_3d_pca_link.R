@@ -1,6 +1,5 @@
 #' Plot PCA scores in 3d space. Link to locally saved 3d html plot gets made and opens automatically in browser after function is run. 
 #'
-#'@importFrom plotly plot_ly
 #'@import dplyr
 #' @param scores; the output from PCA_from_file that has been read in using read.delim - first column includes the samples 
 #' @param info.type; info.type column is in the same order as samples in scores and is a factor. Points will be colored by info.type. It is recommended to make info.type a new column in the scores file. 
@@ -22,7 +21,7 @@
 
 spinning_3d_pca_link<- function(scores, info.type, X = PC1, Y = PC2, Z = PC3, title = "3d PCA plot", colorlst=NULL, marker = NULL){
 
-  fig <- plot_ly(
+  fig <- plotly::plot_ly(
     type = "scatter3d",
     mode = "markers",
     data = scores,
