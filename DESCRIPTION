@@ -19,5 +19,6 @@ Imports:
     ggpubr,
     ggrepel,
     mixOmics,
+    plotly,
     RColorBrewer,
     vegan
