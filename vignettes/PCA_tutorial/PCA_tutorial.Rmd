@@ -202,7 +202,7 @@ glab.library::plot_pls(
   PCx = "V1", PCy = "V2", ellipse = T, conf = 0.90)
 ```
 
-## PCA 3D Visualization
+## PCA 3D Visualization with Plotly
 
 Sometimes, the first two principal components from PCA results may fully capture the relationship in data - in which case looking into later components with an interactive 3-dimensional plot may be useful. The perspective of the plot can be changed by clicking and dragging.
 
@@ -210,20 +210,15 @@ Sometimes, the first two principal components from PCA results may fully capture
 scores <- read.delim("Beltran_2016_rsem_genes_upper_norm_counts_coding_log2_prcomp_scores.txt")
 info <- read.delim("human.info.rsem.expression.txt")
 colnames(info) <- c("cellline", "Group")
-# Subset info to samples in score
 info <- info[info$cellline %in% scores$Score, ]
+scores$Group <- info$Group[match(scores$Score, info$cellline)]
+scores$Group <- factor(scores$Group, levels = unique(scores$Group))
+all(info$cellline==scores$Score)
 ```
 
-```{r Plot 3d - with group}
-glab.library::plot_pca_3d(scores = scores, 
-            info = info, info.Group = info$Group, 
-            grouplabels = TRUE, Title = "PCA Scores 3D Plot - Beltran 2016")
+```{r Plot 3d - color by Group}
+spinning_3d_pca_link(scores = scores, info.type = scores$Group, X = scores$PC1, Y = scores$PC2, Z = scores$PC3, title = "Beltran 3d PCA plot", colorlst=c("red", "dodgerblue"))
 ```
 
-```{r Plot 3d - with label}
-glab.library::plot_pca_3d(scores = scores, 
-            info = info, indiv_labels = TRUE, 
-            Title = "PCA Scores 3D Plot - Beltran 2016 (Labeled)")
-```
 
 ## References
