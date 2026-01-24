@@ -262,7 +262,7 @@ ladder.plot <- function(x,y,title,ladder_color,cex=1.5,latexpdf_flag = 0,output.
     
     #ladder plot
     # 1. Open png file
-    png(paste0("ladder_rplot ",title_file,".png"), width = 300, height = 1000)
+    png(paste0(output.dir,"/ladder_rplot ",title_file,".png"), width = 300, height = 1000)
     
     # 2. Create the plot
     ##parcoord(y, lty=1, lwd=4, col)
